@@ -8,11 +8,18 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import CreatePostScreen from './src/screens/CreatePostScreen';
 import FriendRequestScreen from './src/screens/FriendRequestScreen';
 
+import { TamaguiProvider } from 'tamagui';
+
+import config from './tamagui.config';
+
 const Stack = createNativeStackNavigator();
+
+
 
 export default function App() {
   return (
-    <NavigationContainer>
+    <TamaguiProvider config={config}>
+      {<NavigationContainer>
       <Stack.Navigator initialRouteName = "Login">
         <Stack.Screen name="Login" component={LoginScreen}/>
         <Stack.Screen name="SignUp" component={SignUpScreen}/>
@@ -21,6 +28,7 @@ export default function App() {
         <Stack.Screen name="CreatePost" component={CreatePostScreen}/>
         <Stack.Screen name="FriendRequest" component={FriendRequestScreen}/>
       </Stack.Navigator>
-    </NavigationContainer>
+    </NavigationContainer>}
+    </TamaguiProvider>
   );
 }
