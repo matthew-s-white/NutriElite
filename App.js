@@ -14,13 +14,13 @@ import config from './tamagui.config';
 
 const Stack = createNativeStackNavigator();
 
-
+// screenOptions={{headerShown: false}} 
 
 export default function App() {
   return (
     <TamaguiProvider config={config}>
       {<NavigationContainer>
-      <Stack.Navigator initialRouteName = "Login">
+      <Stack.Navigator initialRouteName = "Login"> 
         <Stack.Screen name="Login" component={LoginScreen}/>
         <Stack.Screen name="SignUp" component={SignUpScreen}/>
         <Stack.Screen name="Home" component={HomeScreen}/>
