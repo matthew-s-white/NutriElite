@@ -1,6 +1,8 @@
 import * as React from 'react';
 import {Theme, Button, Form, YStack, SizableText} from 'tamagui';
 import {TextInput, ToastAndroid} from 'react-native';
+import createNewUser from '../backend/UserManagement';
+import { useEffect } from 'react';
 
 
 const SignUpScreen = ({ navigation }) => {
@@ -19,6 +21,8 @@ const SignUpScreen = ({ navigation }) => {
     const [weight, onChangeWeight] = React.useState('');
     const weightRegex = /^(?:0|[1-9]\d+|)?(?:.?\d{0,1})?$/;
     const weightErrorMsg = "Weight must be a number rounded to one decimal place."
+
+    const [submitted, setSubmitted] = React.useState(false);
 
     const showToast = (msg) => {
         ToastAndroid.show(`Error: ${msg}`, ToastAndroid.LONG);
@@ -45,9 +49,23 @@ const SignUpScreen = ({ navigation }) => {
             showToast(weightErrorMsg);
             return;
         }
-        //add in call to backend
-        navigation.navigate('Home');
+        setSubmitted(true);
     }
+
+    useEffect(() => {
+        async function submitToPB(){
+            
+            
+            //add in call to backend
+            if (!submitted){
+                return;
+            }
+            const res = await createNewUser(email, username, password, weight);
+            console.log(res);
+            navigation.navigate('Home');
+        }
+        submitToPB();
+    }, [submitted]);
 
     return (
         <YStack backgroundColor="#CEFF8F" fullscreen>
