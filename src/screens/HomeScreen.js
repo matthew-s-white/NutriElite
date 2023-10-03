@@ -1,22 +1,14 @@
 import * as React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Theme, Button, Form, YStack, SizableText, XStack} from 'tamagui';
+import { TextInput } from 'react-native';
 
 
 const HomeScreen = ({ navigation }) => {
-    return (
-      <View style={styles.container}>
-        <Text>This is the home screen</Text>
-      </View>
-    );
+  return (
+    <YStack alignItems='center' backgroundColor="#CEFF8F" fullscreen>
+      <Button minWidth={200} padding={30} marginTop="$5" color="#123911" onPress={() => navigation.navigate('CreatePost')} size="$6">+</Button>
+    </YStack>
+  );
 }
 
 export default HomeScreen;
-
-const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#fff',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-  })
