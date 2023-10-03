@@ -16,6 +16,7 @@
     "@tamagui/config": "^1.74.5",
     "@tamagui/lucide-icons": "^1.74.8",
     "@tamagui/theme-builder": "^1.74.5",
+    "pocketbase": "^0.18.0",
     "react": "18.1.0",
     "react-native": "0.70.13",
     "react-native-ionicons": "^4.6.5",
