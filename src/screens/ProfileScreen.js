@@ -1,11 +1,29 @@
 import * as React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-
+import { Image, Button, FlatList, StyleSheet, TouchableOpacity, Text, View } from 'react-native';
+import ImagePicker from 'react-native-image-picker';
+import axios from 'axios';
 
 const ProfileScreen = ({ navigation }) => {
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [userWeight, setUserWeight] = useState(0);
+
+  useEffect(() => {
+    axios.get('API')
+      .then(response => setUserWeight(response.data))
+      .catch(error => console.error(error));
+  }, []);
+
+
     return (
       <View style={styles.container}>
-        <Text>This is the profile screen</Text>
+         <TouchableOpacity onPress={chooseImage}>
+        <Image
+          source={profilePhoto || {uri: 'DEFAULT_IMAGE_URL'}}
+          style={{width: 100, height: 100, borderRadius: 50}}
+        />
+      </TouchableOpacity>
+      <Text>Username</Text>
+
       </View>
     );
 }
