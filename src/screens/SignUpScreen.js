@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {Theme, Button, Form, YStack, SizableText} from 'tamagui';
 import {TextInput, ToastAndroid} from 'react-native';
-import createNewUser from '../backend/UserManagement';
+import { checkUserExists, createNewUser } from '../backend/UserManagement';
 import { useEffect } from 'react';
 
 
@@ -60,8 +60,19 @@ const SignUpScreen = ({ navigation }) => {
             if (!submitted){
                 return;
             }
-            const res = await createNewUser(email, username, password, weight);
-            console.log(res);
+            const userAlreadyExists = await checkUserExists(email, username);
+            if(userAlreadyExists){
+                showToast("email or username already exists");
+                setSubmitted(false);
+                return;
+            }
+            //
+            const userCreated = await createNewUser(email, username, password, weight);
+            if(!userCreated){
+                showToast("server error");
+                setSubmitted(false);
+                return;
+            }
             navigation.navigate('Home');
         }
         submitToPB();

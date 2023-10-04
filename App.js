@@ -13,9 +13,11 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { TamaguiProvider, Tabs, Separator, SizableText, TabsContentProps, H5 } from 'tamagui';
 
 import config from './tamagui.config';
+import SettingsScreen from './src/screens/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
 const FeedStack = createNativeStackNavigator();
+const ProfileStack = createNativeStackNavigator();
 
 const Tab = createBottomTabNavigator();
 
@@ -30,11 +32,21 @@ function Feed() {
   )
 }
 
+function ProfileAndSettings() {
+  return (
+    <ProfileStack.Navigator initialRouteName='MyProfile' screenOptions={{headerShown: false}}>
+      <Stack.Screen name="MyProfile" component={ProfileScreen}/>
+      <Stack.Screen name="Settings" component={SettingsScreen}/>
+    </ProfileStack.Navigator>
+  )
+}
+
+
 function HomeNonTamagui() {
   return (
     <Tab.Navigator screenOptions={{headerShown: false, tabBarInactiveBackgroundColor: '#658141', tabBarActiveBackgroundColor: '#7FA351', tabBarActiveTintColor: '#2A6329', tabBarInactiveTintColor: '#123911', tabBarLabelStyle: {fontSize: 13}}} >
       <Tab.Screen options={{tabBarIcon: (tabInfo) => {return (<Icon name="home-outline" size={24} color={tabInfo.focused ? "#2A6329" : "#123911"} />);},}} name="Feed" component={Feed} tabBarLabel="Home"/>
-      <Tab.Screen options={{tabBarIcon: (tabInfo) => {return (<Icon name="person-circle" size={30} color={tabInfo.focused ? "#2A6329" : "#123911"} />);},}} name="Profile" component={ProfileScreen} tabBarLabel="Profile"/>
+      <Tab.Screen options={{tabBarIcon: (tabInfo) => {return (<Icon name="person-circle" size={30} color={tabInfo.focused ? "#2A6329" : "#123911"} />);},}} name="Profile" component={ProfileAndSettings} tabBarLabel="Profile"/>
       <Tab.Screen options={{tabBarIcon: (tabInfo) => {return (<Icon name="person-add" size={24} color={tabInfo.focused ? "#2A6329" : "#123911"} />);},}} name="Friends" component={FriendRequestScreen} tabBarLabel="Friends"/>
     </Tab.Navigator>
   );
