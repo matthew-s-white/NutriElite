@@ -4,7 +4,7 @@ import { getItem } from './localStorage';
 
 async function fetchMyPosts(){
     try {
-        const emailOrUsername = await getItem("emailOrUsername");
+        const emailOrUsername = await getItem("username");
         console.log(`Fetching posts for ${emailOrUsername} ...`);
         const posts = await client.collection("posts").getFullList({
             filter: `author.email = "${emailOrUsername}" || author.username = "${emailOrUsername}"`,
