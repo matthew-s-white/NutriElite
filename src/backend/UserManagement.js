@@ -1,5 +1,5 @@
 import { client } from './pocketbase';
-import { setItem, getItem } from './localStorage';
+import { setItem } from './localStorage';
 
 async function checkUserExists(email, username){
     try {
@@ -26,7 +26,7 @@ async function createNewUser(email, username, password, weight){
             "weight": weight
         }
         const record = await client.collection('users').create(userData);
-        await setItem("emailOrUsername", username);
+        await setItem("username", username);
         return true;
     } catch (e) {
         console.log(e);
@@ -43,7 +43,7 @@ async function verifyPassword(emailOrUsername, password){
         if (record.length == 0){
             return false;
         } else {
-            await setItem('emailOrUsername', emailOrUsername);
+            await setItem('username', record[0].username);
             return true;
         }
     } catch (e){
