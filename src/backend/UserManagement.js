@@ -26,7 +26,7 @@ async function createNewUser(email, username, password, weight){
             "weight": weight
         }
         const record = await client.collection('users').create(userData);
-        await setItem("username", username);
+        await setItem("emailOrUsername", username);
         return true;
     } catch (e) {
         console.log(e);
@@ -35,4 +35,21 @@ async function createNewUser(email, username, password, weight){
 
 }
 
-export {createNewUser, checkUserExists};
+async function verifyPassword(emailOrUsername, password){
+    try {
+        const record = await client.collection('users').getFullList({
+            filter: `(email = "${emailOrUsername}" || username = "${emailOrUsername}") && password = "${password}"`
+        })
+        if (record.length == 0){
+            return false;
+        } else {
+            await setItem('emailOrUsername', emailOrUsername);
+            return true;
+        }
+    } catch (e){
+        console.log(e);
+        return false;
+    }
+}
+
+export {createNewUser, checkUserExists, verifyPassword};
