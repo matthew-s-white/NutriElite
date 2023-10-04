@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, Text, TextInput, ToastAndroid} from 'react-native';
+import { StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {Button, SizableText, XStack, YStack} from 'tamagui';
 
@@ -25,14 +25,16 @@ const ProfileScreen = ({ navigation }) => {
 
 
     return (
-      <YStack alignItems="center" backgroundColor="#CEFF8F" fullscreen space>
+      
+      <YStack alignItems='center' backgroundColor="#CEFF8F" fullscreen space>
+        <Icon  style={{ alignSelf: 'flex-end', padding: 10}} onPress={() => navigation.navigate('Settings')} name="settings-sharp" size={30} color="#2A6329"/>
         <Icon name="person-circle-outline" size={200} color={"#2A6329"} />
         <SizableText size="$6" color="#123911">Username</SizableText>
         <XStack space>
           <YStack marginRight={20} padding={5}>
             <SizableText size="$6" color="#123911" font-weight="bold">WEIGHT</SizableText>
             <XStack>
-              {isEditable ? <TextInput backgroundColor="#FFFFFF" color="#000000" borderRadius={10} height={40} width={50} value={userWeight} onChangeText={setUserWeight}></TextInput> : <SizableText size="$5" color="#123911">{userWeight} lbs.</SizableText>}
+              {isEditable ? <TextInput backgroundColor="#FFFFFF" color="#000000" borderRadius={10} height={40} width={50} keyboardType='numeric' value={userWeight} onChangeText={setUserWeight}></TextInput> : <SizableText size="$5" color="#123911">{userWeight} lbs.</SizableText>}
               <Icon onPress={submitInfo} name="create" size={30} color={"#2A6329"} />
             </XStack>
           </YStack>
