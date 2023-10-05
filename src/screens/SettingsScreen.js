@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Modal, View, Text, TextInput, StyleSheet } from 'react-native';
+import { Modal, View, Text, TextInput, StyleSheet, ToastAndroid } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {Button, SizableText, XStack, YStack} from 'tamagui';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ProfileScreen from './ProfileScreen';
+import { getItem, setItem} from '../backend/localStorage';
+import { checkUserExists, verifyPassword, getWeight, setWeight, updateUsername } from '../backend/UserManagement';
+
 
 const SettingsScreen = () => {
   const navigation = useNavigation();
@@ -12,21 +15,41 @@ const SettingsScreen = () => {
   const [password, setPassword] = useState('');
   const [newUsername, setNewUsername] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  
+  const showToast = (msg) => {
+    ToastAndroid.show(`Error: ${msg}`, ToastAndroid.LONG);
+  };
 
-
-  const handleSave = () => {
+  const handleSave = async () => {
     // Validate that currentUsername and password are correct
+    const verify = await verifyPassword(username, password);
+    if (verify){
+        if(await checkUserExists(newUsername, newUsername)){
+            showToast("username already exists");
+            return;
+        } else {
+            const Id = await getItem("userId");
+            console.log(Id);
+            const tryUpdate = await updateUsername(Id, newUsername);
+            if(tryUpdate){
+                await setItem('username', newUsername);
+            }
+        }
+    } else {
+        showToast("username or password is invalid");
+        return;
+    }
     // Typically this involves calling an API to validate the information
     // If valid, then allow to change the username
 
-    console.log("Settings saved:", { newUsername });
+    //console.log("Settings saved:", { newUsername });
     alert('Settings saved!');
     setModalVisible(false);
   };
 
   return (
     <YStack alignItems="center" backgroundColor="#CEFF8F" fullscreen space>
-      <Icon style={{ alignSelf: 'flex-start', padding: 10}} onPress={() => navigation.goBack()} name="arrow-back" size={30} marginTop={10} marginRight={250} color="#2A6329"/>
+      <Icon style={{ alignSelf: 'flex-start', padding: 10}} onPress={() => navigation.navigate("MyProfile")} name="arrow-back" size={30} marginTop={10} marginRight={250} color="#2A6329"/>
       <Modal
         animationType="slide"
         transparent={true}
