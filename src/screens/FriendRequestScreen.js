@@ -34,9 +34,8 @@ const FriendRequestScreen = ({ navigation }) => {
           save="value"
           placeholder="Search for users"
           search={true}
-          boxStyles={{borderRadius:10}}
+          boxStyles={{borderRadius:20, width: 300}}
         />
-        <Text>This is the friendrequest screen</Text>
       </YStack>
     );
 }

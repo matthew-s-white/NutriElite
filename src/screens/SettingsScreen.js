@@ -61,8 +61,8 @@ const SettingsScreen = () => {
               placeholder="Enter your new username"
             />
 
-            <Button padding={5} onPress={handleSave} >Submit</Button>
-            <Button onPress={() => setModalVisible(false)}>Cancel</Button>
+            <Button style={styles.button} onPress={handleSave}>Submit</Button>
+            <Button style={styles.button} onPress={() => setModalVisible(false)}>Cancel</Button>
           </View>
         </View>
       </Modal>
@@ -89,6 +89,9 @@ const styles = StyleSheet.create({
       borderColor: 'gray',
       padding: 10,
       marginBottom: 20,
+    },
+    button: {
+        marginBottom: 10,
     },
     centeredView: {
       flex: 1,
