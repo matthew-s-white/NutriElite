@@ -2,13 +2,24 @@ import * as React from 'react';
 import { Theme, Button, Form, YStack, SizableText, XStack, Text, Card } from 'tamagui';
 import {StyleSheet, View} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-
+import { likePost, unlikePost } from '../backend/PostManagement';
+import { getItem } from '../backend/localStorage';
 
 const Post = ({ id, author, content, likeCount, postType }) => {
     const [liked, setLiked] = React.useState(false); // need to load in whether post is liked by current user
+    const [likeCou, setLikedCou] = React.useState(likeCount);
 
-    const handleLiked = () => {
+    const handleLiked = async () => {
         setLiked(!liked);
+        const idUser = await getItem("userId");
+
+        if(!liked){
+            setLikedCou(likeCou + 1);
+            await likePost(idUser, id);
+        } else {
+            setLikedCou(likeCou - 1);
+            await unlikePost(idUser, id);
+        }
 
         
     }
@@ -29,7 +40,7 @@ const Post = ({ id, author, content, likeCount, postType }) => {
                 <Icon onPress={handleLiked} elevate name="heart-outline" color="#123911" size={25} />
                 }
                 
-                <Text color="#123911"  fontSize={18}>{likeCount}</Text>
+                <Text color="#123911"  fontSize={18}>{likeCou}</Text>
             </XStack>
 
         </Card>
