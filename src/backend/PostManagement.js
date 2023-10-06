@@ -77,6 +77,7 @@ async function createNewPost(content, author, postType, nutritionFacts){
 
 async function likePost(userId, postId){
     try{
+        
         const updatedRecord = await client.collection('posts').update(`${postId}`, {
             "likes+": `${userId}`  // This is a made-up function; replace with whatever Pocketbase provides, if it provides a method like this
         });

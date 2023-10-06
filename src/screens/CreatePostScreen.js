@@ -4,8 +4,6 @@ import { Theme, Button, Form, YStack, SizableText, XStack, Card, CardProps, H4, 
 import { TextInput, SafeAreaView, ScrollView, ToastAndroid } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list'
 import Icon from 'react-native-vector-icons/Ionicons';
-import ExerciseCard from './ExerciseCard';
-import MealCard from './MealCard';
 import { createNewPost, fetchNutritionInfo } from '../backend/PostManagement';
 import { getItem } from '../backend/localStorage';
 
