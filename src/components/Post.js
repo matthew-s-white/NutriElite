@@ -2,12 +2,26 @@ import * as React from 'react';
 import { Theme, Button, Form, YStack, SizableText, XStack, Text, Card } from 'tamagui';
 import {StyleSheet, View} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { likePost, unlikePost } from '../backend/PostManagement';
+import { likePost, unlikePost, checkIfUserLiked } from '../backend/PostManagement';
 import { getItem } from '../backend/localStorage';
+import { useIsFocused } from "@react-navigation/native";
+
 
 const Post = ({ id, author, content, likeCount, postType }) => {
     const [liked, setLiked] = React.useState(false); // need to load in whether post is liked by current user
     const [likeCou, setLikedCou] = React.useState(likeCount);
+
+    const isFocused = useIsFocused();
+
+    React.useEffect(() => {
+        async function fetchData() {
+          //console.log("ive been triggered")
+          const idUser = await getItem("userId");
+          const like = await checkIfUserLiked(idUser, id);
+          setLiked(like);
+        }
+        fetchData();
+      },[])
 
     const handleLiked = async () => {
         setLiked(!liked);
