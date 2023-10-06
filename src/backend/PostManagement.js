@@ -75,9 +75,33 @@ async function createNewPost(content, author, postType, nutritionFacts){
     }
 }
 
+async function checkIfUserLiked(userId, postId){
+    try{
+
+        const post = await client.collection('posts').getOne(postId);
+
+        // Check if post was found and has a 'likes' field
+        if (!post || !post.likes) {
+            return false;
+        }
+
+        // Append userId to likes array
+        if(post.likes.includes(userId)){
+            return true;
+        } else{
+            return false;
+        }
+        
+        //console.log(updatedRecord);
+    } catch (e){
+        console.log(e);
+        return false;
+    }
+}
+
 async function likePost(userId, postId){
     try{
-        
+
         const updatedRecord = await client.collection('posts').update(`${postId}`, {
             "likes+": `${userId}`  // This is a made-up function; replace with whatever Pocketbase provides, if it provides a method like this
         });
@@ -144,4 +168,4 @@ async function unlikePost(userId, postId){
 }
 
 
-export {createNewPost, fetchMyPosts, likePost, unlikePost, fetchNutritionInfo};
+export {createNewPost, fetchMyPosts, likePost, unlikePost, fetchNutritionInfo, checkIfUserLiked};
