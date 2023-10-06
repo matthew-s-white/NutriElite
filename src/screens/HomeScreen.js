@@ -1,29 +1,89 @@
 import * as React from 'react';
-import { Theme, Button, Form, YStack, SizableText, XStack} from 'tamagui';
+import { Theme, Button, Form, YStack, SizableText, XStack, Slider, Text } from 'tamagui';
 import { ScrollView, TextInput } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { fetchMyPosts } from '../backend/PostManagement';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Post from '../components/Post';
+import { useIsFocused } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const HomeScreen = ({ navigation }) => {
 
-  const [posts, setPosts] = React.useState([]);
+  const [posts, setPosts] = useState([]);
+  const [feedType, setFeedType] = useState("");
+  const isFocused = useIsFocused();
 
   useEffect(() => {
-      async function getPosts(){
-        const data = await fetchMyPosts();
-        setPosts(data);
-      }
-      getPosts();
-  }, []);
+    async function getPosts() {
+      const data = await fetchMyPosts();
+      setPosts(data);
+    }
+    getPosts();
+  }, [isFocused]);
+
+  const handleSlider = (value) => {
+    if(value == 0) {
+      setFeedType('workout');
+    }
+    else if(value == 50) {
+      setFeedType('');
+    }
+    else if(value == 100){
+      setFeedType('meal');
+    }
+    
+    console.log(value, feedType);
+  }
 
 
   return (
-    <YStack alignItems='center' backgroundColor="#CEFF8F" fullscreen>
-      <ScrollView>
-      <Button minWidth={200} padding={30} marginTop="$5" color="#123911" onPress={() => navigation.navigate('CreatePost')} size="$6">+</Button>
-      {posts.map((post) => {return <Post id={post.id} author={post.expand.author.username} content={post.content} likeCount={post.likeCount} />})}
-      </ScrollView>
+    <YStack alignItems='center' backgroundColor="#CEFF8F" fullscreen={true} space>
+
+      <XStack space alignItems='center'>
+        <Icon style={{ alignSelf: 'flex-start', margin: 5 }} onPress={() => navigation.navigate('CreatePost')} elevate name="add-circle" color="#123911" size={50} />
+
+        <YStack space marginTop={20}>
+
+          <Slider defaultValue={[50]} max={100} width={175} step={50} onValueChange={(value) => handleSlider(value[0])}>
+            <Slider.Track backgroundColor='#658141'>
+              <Slider.TrackActive backgroundColor='#7FA351' />
+            </Slider.Track>
+            <Slider.Thumb backgroundColor="#123911" index={0} circular elevate />
+          </Slider>
+
+          <XStack space>
+              <Text color="#123911" fontSize={11}>WORKOUTS</Text>
+              <Text color="#123911"  marginRight={15} fontSize={11}>ALL</Text>
+              <Text color="#123911" fontSize={11}>MEALS</Text>
+          </XStack>
+
+        </YStack>
+
+      </XStack>
+
+
+      <SafeAreaView width="100%">
+        <ScrollView >
+          {posts.filter( function (post) { 
+            return (post.postType.search(feedType) != -1);
+          }).map((post, index) => {
+            return (
+              
+              <Post key={index} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} />
+            );
+          })}
+
+          <XStack alignSelf='center' marginBottom={25} space>
+            <View style={{
+              borderBottomColor: color = "#CEFF8F",
+              borderBottomWidth: 1,
+            }}></View>
+          </XStack>
+
+        </ScrollView>
+      </SafeAreaView>
     </YStack>
   );
 }

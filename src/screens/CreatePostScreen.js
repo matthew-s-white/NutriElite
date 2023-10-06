@@ -4,9 +4,10 @@ import { Theme, Button, Form, YStack, SizableText, XStack, Card, CardProps, H4, 
 import { TextInput, SafeAreaView, ScrollView, ToastAndroid } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list'
 import Icon from 'react-native-vector-icons/Ionicons';
-import ExerciseCard from './ExerciseCard';
-import MealCard from './MealCard';
+import ExerciseCard from '../components/ExerciseCard';
+import MealCard from '../components/MealCard';
 import { createNewPost } from '../backend/PostManagement';
+import { getItem } from '../backend/localStorage';
 
 const CreatePostScreen = ({ navigation }) => {
 
@@ -128,7 +129,9 @@ const CreatePostScreen = ({ navigation }) => {
         }
       }
 
-      const postCreated = await createNewPost(postContent, "xj4fh52oufvi8q9", postType.toLowerCase());
+      const id = await getItem("userId");
+
+      const postCreated = await createNewPost(postContent, id, postType.toLowerCase());
       if (!postCreated) {
         showToast("Server error");
         setSubmitted(false);
