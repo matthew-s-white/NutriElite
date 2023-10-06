@@ -7,6 +7,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import ExerciseCard from './ExerciseCard';
 import MealCard from './MealCard';
 import { createNewPost, fetchNutritionInfo } from '../backend/PostManagement';
+import { getItem } from '../backend/localStorage';
 
 const CreatePostScreen = ({ navigation }) => {
 
@@ -141,7 +142,10 @@ const CreatePostScreen = ({ navigation }) => {
         }
       }
 
-      const postCreated = await createNewPost(postContent, "xj4fh52oufvi8q9", postType.toLowerCase(), nutritionFacts);
+      const id = await getItem("userId");
+
+      const postCreated = await createNewPost(postContent, id, postType.toLowerCase(), nutritionFacts);
+
       if (!postCreated) {
         showToast("Server error");
         setSubmitted(false);

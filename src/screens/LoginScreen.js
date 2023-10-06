@@ -34,7 +34,7 @@ const LoginScreen = ({ navigation }) => {
                 {
                     <YStack space marginBottom={30} alignSelf="center">
                         <TextInput backgroundColor="#FFFFFF" color="#000000" borderRadius={10} height={55} width={300} placeholder='Username/Email' placeholderTextColor="#123911" onChangeText={setEmailOrUsername}></TextInput>
-                        <TextInput backgroundColor="#FFFFFF" color="#000000" borderRadius={10} height={55} width={300} placeholder='Password'placeholderTextColor="#123911" onChangeText={setPassword}></TextInput>
+                        <TextInput secureTextEntry={true} backgroundColor="#FFFFFF" color="#000000" borderRadius={10} height={55} width={300} placeholder='Password' placeholderTextColor="#123911" onChangeText={setPassword}></TextInput>
 
                     </YStack>}
                 <Form.Trigger asChild>
