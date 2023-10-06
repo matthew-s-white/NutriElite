@@ -55,11 +55,9 @@ async function getWeight(username){
 
 async function updateWeight(userId, weight){
     try{
-        console.log(weight);
         const record = await client.collection('users').update(`${userId}`, {
             "weight": `${weight}`
         });
-        console.log(record);
         if (record.length == 0){
             return false;
         } else {
@@ -73,11 +71,9 @@ async function updateWeight(userId, weight){
 
 async function updateUsername(userId, username){
     try{
-        console.log(username);
         const record = await client.collection('users').update(`${userId}`, {
             "username": `${username}`
         });
-        //console.log(record);
         if (record.length == 0){
             return false;
         } else {

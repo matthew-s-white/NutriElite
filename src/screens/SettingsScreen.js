@@ -29,7 +29,7 @@ const SettingsScreen = () => {
             return;
         } else {
             const Id = await getItem("userId");
-            console.log(Id);
+            //console.log(Id);
             const tryUpdate = await updateUsername(Id, newUsername);
             if(tryUpdate){
                 await setItem('username', newUsername);

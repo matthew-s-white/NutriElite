@@ -45,8 +45,8 @@ const ProfileScreen = ({ navigation }) => {
         return;
       } else {
         const Id = await getItem("userId");
-        console.log(userWeight);
-        console.log(Id);
+        //console.log(userWeight);
+        //console.log(Id);
         await updateWeight(Id, userWeight);
         //add call to backend to update weight
       }

@@ -38,4 +38,73 @@ async function createNewPost(content, author, postType){
         return false;
     }
 }
-export {createNewPost, fetchMyPosts};
+
+async function likePost(userId, postId){
+    try{
+        const updatedRecord = await client.collection('posts').update(`${postId}`, {
+            "likes+": `${userId}`  // This is a made-up function; replace with whatever Pocketbase provides, if it provides a method like this
+        });
+
+        const post = await client.collection('posts').getOne(postId);
+
+        // Check if post was found and has a 'likes' field
+        if (!post || !post.likes) {
+            return false;
+        }
+
+        // Append userId to likes array
+        const likesCount = post.likes.length;
+        
+
+        const updatedCount = await client.collection('posts').update(`${postId}`, {
+            "likeCount": likesCount  // This is a made-up function; replace with whatever Pocketbase provides, if it provides a method like this
+        });
+        //console.log(updatedRecord);
+
+        if (!updatedRecord || Object.keys(updatedRecord).length == 0) {
+            return false;
+        } else {
+            return true;
+        }
+
+    } catch (e){
+        console.log(e);
+        return false;
+    }
+}
+
+async function unlikePost(userId, postId){
+    try{
+        const updatedRecord = await client.collection('posts').update(`${postId}`, {
+            "likes-": `${userId}`  // This is a made-up function; replace with whatever Pocketbase provides, if it provides a method like this
+        });
+
+        const post = await client.collection('posts').getOne(postId);
+
+        // Check if post was found and has a 'likes' field
+        if (!post || !post.likes) {
+            return false;
+        }
+
+        // Append userId to likes array
+        const likesCount = post.likes.length;
+
+        const updatedCount = await client.collection('posts').update(`${postId}`, {
+            "likeCount": likesCount  // This is a made-up function; replace with whatever Pocketbase provides, if it provides a method like this
+        });
+        //console.log(updatedRecord);
+
+        if (!updatedRecord || Object.keys(updatedRecord).length == 0) {
+            return false;
+        } else {
+            return true;
+        }
+
+    } catch (e){
+        console.log(e);
+        return false;
+    }
+}
+
+
+export {createNewPost, fetchMyPosts, likePost, unlikePost};
