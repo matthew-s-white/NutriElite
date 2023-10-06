@@ -26,8 +26,9 @@ async function createNewUser(email, username, password, weight){
             "weight": weight
         }
         const record = await client.collection('users').create(userData);
-        await setItem("username", username);
-        await setItem('userId',  record[0].id);
+        //console.log(record);
+        await setItem('username', username);
+        await setItem('userId',  record.id);
         return true;
     } catch (e) {
         console.log(e);

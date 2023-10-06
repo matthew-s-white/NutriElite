@@ -10,7 +10,7 @@ import { getItem } from '../backend/localStorage';
 const CreatePostScreen = ({ navigation }) => {
 
   const errorMsg = "Entered blank or invalid input."
-  const numRegex = /^[0-9]+$/;
+  const numRegex = /^(?:0|[1-9]\d+|)?(?:.?\d{0,1})?$/;
 
   const workoutMeasures = [
     { key: '1', value: 'reps', },

@@ -10,6 +10,7 @@ import Comment from '../components/Comment';
 
 const PostDetailsScreen = ({ route, navigation }) => {
     const postInfo = route.params;
+    console.log(postInfo);
 
     const [liked, setLiked] = React.useState(false); // need to load in whether post is liked by current user
     const [likeCou, setLikedCou] = React.useState(postInfo.likeCount);
@@ -68,6 +69,16 @@ const PostDetailsScreen = ({ route, navigation }) => {
                             }}
                         />
                         <Text fontSize={20} padding={2} color="#123911">{postInfo.content}</Text>
+                        {postInfo.postType == "meal" ?
+                            <View paddingBottom={10}>
+                                <Text fontSize={18} padding={2} color="#123911">{postInfo.calories} calories</Text>
+                                <Text fontSize={18} padding={2} color="#123911">{postInfo.protein} grams of protein</Text>
+                                <Text fontSize={18} padding={2} color="#123911">{postInfo.carbs} grams of carbs</Text>
+                                <Text fontSize={18} padding={2} color="#123911">{postInfo.fat} grams of fat</Text>
+                            </View>
+                            :
+                            null
+                        }
                         <XStack>
                             {liked ?
                                 <Icon onPress={handleLiked} elevate name="heart" color="#123911" size={25} />

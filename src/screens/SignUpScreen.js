@@ -54,8 +54,6 @@ const SignUpScreen = ({ navigation }) => {
 
     useEffect(() => {
         async function submitToPB(){
-            
-            
             //add in call to backend
             if (!submitted){
                 return;
@@ -66,13 +64,15 @@ const SignUpScreen = ({ navigation }) => {
                 setSubmitted(false);
                 return;
             }
-            //
+            console.log("before");
             const userCreated = await createNewUser(email, username, password, weight);
             if(!userCreated){
+                console.log("in here");
                 showToast("server error");
                 setSubmitted(false);
                 return;
             }
+            console.log("before navigation");
             navigation.navigate('Home');
         }
         submitToPB();
