@@ -6,7 +6,8 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import Icon from 'react-native-vector-icons/Ionicons';
 import ExerciseCard from './ExerciseCard';
 import MealCard from './MealCard';
-import { createNewPost } from '../backend/PostManagement';
+import { createNewPost, fetchNutritionInfo } from '../backend/PostManagement';
+import { getItem } from '../backend/localStorage';
 
 const CreatePostScreen = ({ navigation }) => {
 
@@ -40,6 +41,7 @@ const CreatePostScreen = ({ navigation }) => {
     if (checked) {
       setPostType("Meal");
       setPostInfo([{ 'mealName': "", 'mealAmount': "", "mealMeasure": "" }]);
+      setNutritionFacts({calories: '0', protein: '0', carbs: '0', fat: '0'});
     }
     else {
       setPostType("Workout");
@@ -65,9 +67,21 @@ const CreatePostScreen = ({ navigation }) => {
     ToastAndroid.show(`Error: ${msg}`, ToastAndroid.LONG);
   };
 
+  const [nutritionFacts, setNutritionFacts] = React.useState({
+    calories: '0',
+    protein: '0',
+    carbs: '0',
+    fat: '0'
+  })
+
 
   const handlePost = () => {
     console.log(postInfo);
+
+    if (postType === "Meal" && nutritionFacts.calories === "0"){
+      showToast("please analyze nutrition facts before posting");
+      return;
+    }
 
     for (const part of postInfo) {
 
@@ -128,7 +142,10 @@ const CreatePostScreen = ({ navigation }) => {
         }
       }
 
-      const postCreated = await createNewPost(postContent, "xj4fh52oufvi8q9", postType.toLowerCase());
+      const id = await getItem("userId");
+
+      const postCreated = await createNewPost(postContent, id, postType.toLowerCase(), nutritionFacts);
+
       if (!postCreated) {
         showToast("Server error");
         setSubmitted(false);
@@ -138,6 +155,39 @@ const CreatePostScreen = ({ navigation }) => {
     }
     submitToPB();
   }, [submitted]);
+
+  const calculateNutrition = async () => {
+    let itemCount = 0;
+    let items = '';
+    for(const part of postInfo) {
+      itemCount++;
+      if (part.mealName == "" || part.mealAmount == "" || part.mealMeasure == "") {
+        showToast(`item #${itemCount} has a blank value`);
+        return;
+      }
+      var item = part.mealAmount + " " + part.mealMeasure + " of " + part.mealName + "\n";
+      items += item
+    }
+    
+    const nutritionInfo = await fetchNutritionInfo(items.substring(0, items.length - 1));
+    
+    if (nutritionInfo === 5){
+      showToast("a food item you entered can't be recognized");
+      return;
+    }
+
+    if (nutritionInfo === 2){
+      showToast("server error");
+      return;
+    }
+    setNutritionFacts({
+      ...nutritionFacts,
+      calories: nutritionInfo.calories,
+      protein: nutritionInfo.protein,
+      carbs: nutritionInfo.carbs,
+      fat: nutritionInfo.fat
+    })
+  }
 
 
   return (
@@ -235,11 +285,19 @@ const CreatePostScreen = ({ navigation }) => {
           })}
 
           <XStack alignSelf='center' marginBottom={20} space>
+            {postType === "Meal" ? <Button onPress={calculateNutrition} backgroundColor="#123911" color="white">ANALYZE</Button> : null}
             <Button onPress={handlePlus} circular={true} theme='dark_green' backgroundColor='transparent' icon={<Icon elevate name="add-circle" color="#123911" size={45} />}></Button>
             <Theme name="dark_green">
               <Button backgroundColor="#123911" fontColor="#000000" onPress={handlePost}>POST</Button>
             </Theme>
           </XStack>
+
+          {postType === "Meal" ? <YStack alignSelf="center" marginBottom={20} space>
+            <H3 style={{ fontWeight: "bold" }}>Calories: {nutritionFacts.calories}</H3>
+            <H3 style={{ fontWeight: "bold" }}>Protein: {nutritionFacts.protein}g</H3>
+            <H3 style={{ fontWeight: "bold" }}>Carbs: {nutritionFacts.carbs}g</H3>
+            <H3 style={{ fontWeight: "bold" }}>Fat: {nutritionFacts.fat}g</H3>
+          </YStack> : null}
 
 
 
