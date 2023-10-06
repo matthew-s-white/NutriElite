@@ -74,4 +74,129 @@ async function createNewPost(content, author, postType, nutritionFacts){
         return false;
     }
 }
-export {createNewPost, fetchMyPosts, fetchNutritionInfo};
+
+async function checkIfUserLiked(userId, postId){
+    try{
+
+        const post = await client.collection('posts').getOne(postId);
+
+        // Check if post was found and has a 'likes' field
+        if (!post || !post.likes) {
+            return false;
+        }
+
+        // Append userId to likes array
+        if(post.likes.includes(userId)){
+            return true;
+        } else{
+            return false;
+        }
+        
+        //console.log(updatedRecord);
+    } catch (e){
+        console.log(e);
+        return false;
+    }
+}
+
+async function likePost(userId, postId){
+    try{
+
+        const updatedRecord = await client.collection('posts').update(`${postId}`, {
+            "likes+": `${userId}`  // This is a made-up function; replace with whatever Pocketbase provides, if it provides a method like this
+        });
+
+        const post = await client.collection('posts').getOne(postId);
+
+        // Check if post was found and has a 'likes' field
+        if (!post || !post.likes) {
+            return false;
+        }
+
+        // Append userId to likes array
+        const likesCount = post.likes.length;
+        
+
+        const updatedCount = await client.collection('posts').update(`${postId}`, {
+            "likeCount": likesCount  // This is a made-up function; replace with whatever Pocketbase provides, if it provides a method like this
+        });
+        //console.log(updatedRecord);
+
+        if (!updatedRecord || Object.keys(updatedRecord).length == 0) {
+            return false;
+        } else {
+            return true;
+        }
+
+    } catch (e){
+        console.log(e);
+        return false;
+    }
+}
+
+async function unlikePost(userId, postId){
+    try{
+        const updatedRecord = await client.collection('posts').update(`${postId}`, {
+            "likes-": `${userId}`  // This is a made-up function; replace with whatever Pocketbase provides, if it provides a method like this
+        });
+
+        const post = await client.collection('posts').getOne(postId);
+
+        // Check if post was found and has a 'likes' field
+        if (!post || !post.likes) {
+            return false;
+        }
+
+        // Append userId to likes array
+        const likesCount = post.likes.length;
+
+        const updatedCount = await client.collection('posts').update(`${postId}`, {
+            "likeCount": likesCount  // This is a made-up function; replace with whatever Pocketbase provides, if it provides a method like this
+        });
+        //console.log(updatedRecord);
+
+        if (!updatedRecord || Object.keys(updatedRecord).length == 0) {
+            return false;
+        } else {
+            return true;
+        }
+
+    } catch (e){
+        console.log(e);
+        return false;
+    }
+}
+
+async function commentOnPost(postId, commentText){
+    try {
+        const authorId = await getItem("userId");
+        const res = await client.collection("comments").create({
+            "author": authorId,
+            "post": postId,
+            "content": commentText
+        });
+        return true;
+
+    } catch (e) {
+        console.log(e);
+        return false;
+    }
+}
+
+async function fetchCommentsForPost(postId){
+    try {
+        const records = await client.collection('comments').getFullList({
+            filter: `post = "${postId}"`,
+            expand: "author"
+        });
+        return records;
+
+    } catch (e) {
+        console.log(e);
+        return [];
+    }
+}
+
+
+
+export {createNewPost, fetchMyPosts, likePost, unlikePost, fetchNutritionInfo, checkIfUserLiked, commentOnPost, fetchCommentsForPost};
