@@ -186,7 +186,9 @@ async function commentOnPost(postId, commentText){
 async function fetchCommentsForPost(postId){
     try {
         const records = await client.collection('comments').getFullList({
-            filter: `post = "${postId}"`
+
+            filter: `post = "${postId}"`,
+            expand: "author"
         });
         return records;
 
@@ -199,3 +201,4 @@ async function fetchCommentsForPost(postId){
 
 
 export {createNewPost, fetchMyPosts, likePost, unlikePost, fetchNutritionInfo, checkIfUserLiked, commentOnPost, fetchCommentsForPost};
+

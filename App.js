@@ -7,6 +7,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import CreatePostScreen from './src/screens/CreatePostScreen';
 import FriendRequestScreen from './src/screens/FriendRequestScreen';
+import PostDetailsScreen from './src/screens/PostDetailsScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -28,6 +29,7 @@ function Feed() {
     <FeedStack.Navigator initialRouteName='Posts' screenOptions={{headerShown: false}}>
       <FeedStack.Screen name="Posts" component={HomeScreen}/>
       <FeedStack.Screen name="CreatePost" component={CreatePostScreen}/>
+      <FeedStack.Screen name="PostDetails" component={PostDetailsScreen}/>
     </FeedStack.Navigator>
   )
 }
