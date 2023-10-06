@@ -167,5 +167,35 @@ async function unlikePost(userId, postId){
     }
 }
 
+async function commentOnPost(postId, commentText){
+    try {
+        const authorId = await getItem("userId");
+        const res = await client.collection("comments").create({
+            "author": authorId,
+            "post": postId,
+            "content": commentText
+        });
+        return true;
 
-export {createNewPost, fetchMyPosts, likePost, unlikePost, fetchNutritionInfo, checkIfUserLiked};
+    } catch (e) {
+        console.log(e);
+        return false;
+    }
+}
+
+async function fetchCommentsForPost(postId){
+    try {
+        const records = await client.collection('comments').getFullList({
+            filter: `post = "${postId}"`
+        });
+        return records;
+
+    } catch (e) {
+        console.log(e);
+        return [];
+    }
+}
+
+
+
+export {createNewPost, fetchMyPosts, likePost, unlikePost, fetchNutritionInfo, checkIfUserLiked, commentOnPost, fetchCommentsForPost};
