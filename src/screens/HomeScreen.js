@@ -21,7 +21,7 @@ const HomeScreen = ({ navigation }) => {
       setPosts(data);
     }
     getPosts();
-  }, [isFocused]);
+  }, [isFocused, feedType]);
 
   const handleSlider = (value) => {
     if(value == 0) {
@@ -36,6 +36,15 @@ const HomeScreen = ({ navigation }) => {
     
     console.log(value, feedType);
   }
+
+  // {posts.filter( function (post) { 
+  //   return (post.postType.search(feedType) != -1);
+  // }).map((post, index) => {
+  //   return (
+      
+  //     <Post key={index} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} />
+  //   );
+  // })}
 
 
   return (
@@ -66,14 +75,22 @@ const HomeScreen = ({ navigation }) => {
 
       <SafeAreaView width="100%">
         <ScrollView >
-          {posts.filter( function (post) { 
-            return (post.postType.search(feedType) != -1);
-          }).map((post, index) => {
-            return (
-              
-              <Post key={index} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} />
-            );
-          })}
+          
+          {feedType === "meal" ? posts.map((post, index) => {
+            if(post.postType === "meal"){
+              return <Post key={index} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} />
+            }
+          }) : null}
+
+          {feedType === "workout" ? posts.map((post, index) => {
+            if(post.postType === "workout"){
+              return <Post key={index} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} />
+            }
+          }) : null}
+
+          {feedType === "" ? posts.map((post, index) => {
+            return <Post key={index} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} />
+          }) : null}
 
           <XStack alignSelf='center' marginBottom={25} space>
             <View style={{
