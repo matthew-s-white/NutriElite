@@ -29,6 +29,7 @@ async function createNewUser(email, username, password, weight){
         //console.log(record);
         await setItem('username', username);
         await setItem('userId',  record.id);
+        await setItem('password', record[0].password);
         return true;
     } catch (e) {
         console.log(e);
@@ -98,6 +99,7 @@ async function verifyPassword(emailOrUsername, password){
         } else {
             await setItem('username', record[0].username);
             await setItem('userId',  record[0].id);
+            await setItem('password', record[0].password);
             return true;
         }
     } catch (e){
