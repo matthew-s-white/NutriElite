@@ -29,7 +29,7 @@ async function createNewUser(email, username, password, weight){
         //console.log(record);
         await setItem('username', username);
         await setItem('userId',  record.id);
-        await setItem('password', record[0].password);
+        await setItem('password', password);
         return true;
     } catch (e) {
         console.log(e);
@@ -125,4 +125,20 @@ async function verifyPassword(emailOrUsername, password){
     }
 }
 
-export {createNewUser, checkUserExists, verifyPassword, getWeight, updateWeight, updateUsername, updatePassword};
+
+async function deleteAccount(userId){
+    try{
+        const record = await client.collection('users').delete(`${userId}`);
+        if (record.length == 0){
+            return false;
+        } else {
+            return true;
+        }
+    } catch (e){
+        console.log(e);
+        return false;
+    }
+}
+
+
+export {createNewUser, checkUserExists, verifyPassword, getWeight, updateWeight, updateUsername, updatePassword, deleteAccount};
