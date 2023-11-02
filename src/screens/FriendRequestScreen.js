@@ -2,51 +2,63 @@ import { YStack } from '@tamagui/stacks';
 import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list'
-
+import { getUsers, getFriendRequests } from '../backend/UserManagement'
+import { useIsFocused } from '@react-navigation/native';
 
 
 const FriendRequestScreen = ({ navigation }) => {
 
   const [selected, setSelected] = React.useState("");
-  const [data,setData] = React.useState([]);
-  
-  /*React.useEffect(() => 
-    //Get Values from database
-    axios.get('https://jsonplaceholder.typicode.com/users')
-      .then((response) => {
-        // Store Values in Temporary Array
-        let newArray = response.data.map((item) => {
-          return {key: item.id, value: item.name}
-        })
-        //Set Data Variable
-        setData(newArray)
-      })
-      .catch((e) => {
-        console.log(e)
-      })
-  ,[])*/
+  const [data, setData] = React.useState([]);
+  const isFocused = useIsFocused();
+  const [requests, setRequests] = React.useState([]);
 
-    return (
-      <YStack alignItems='center' backgroundColor="#CEFF8F" flex={1} padding={20} fullscreen space> 
-        <SelectList
-          setSelected={(val) => setSelected(val)} 
-          data={data} 
-          save="value"
-          placeholder="Search for users"
-          search={true}
-          boxStyles={{borderRadius:20, width: 300}}
-        />
-      </YStack>
-    );
+  React.useEffect(() => {
+    async function fetchData() {
+      const records = await getUsers();
+      
+      var users = [];
+      for(var i=0; i < records.length; i++) {
+        item = {key: '' + i, value: records[i]['username']}
+        users.push(item);
+      }
+      setData(users);
+      setSelected('');
+      console.log(selected);
+
+      const requests = await getFriendRequests();
+      var pending = []
+      for(var i=0; i < requests.length; i++) {
+          pending.push(requests[i].expand.sender.username);
+      }
+
+      console.log(pending);
+
+      
+    }
+    fetchData();
+  }, [isFocused])
+
+
+  const handleUserClicked = () => {
+    navigation.navigate('FriendProfile', {username: selected });
+  }
+
+  return (
+    <YStack alignItems='center' backgroundColor="#CEFF8F" flex={1} padding={20} fullscreen space>
+      {isFocused ?
+      <SelectList
+        data={data}
+        save="value"
+        placeholder="Search for users"
+        search={true}
+        boxStyles={{ borderRadius: 20, width: 300 }}
+        maxHeight={130}
+        onSelect={handleUserClicked}
+        setSelected={setSelected}
+      />: null}
+    </YStack>
+  );
 }
 
 export default FriendRequestScreen;
-
-const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#fff',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-  })
