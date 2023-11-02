@@ -7,6 +7,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import CreatePostScreen from './src/screens/CreatePostScreen';
 import FriendRequestScreen from './src/screens/FriendRequestScreen';
+import FriendProfileScreen from './src/screens/FriendProfileScreen';
 import PostDetailsScreen from './src/screens/PostDetailsScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -19,11 +20,19 @@ import SettingsScreen from './src/screens/SettingsScreen';
 const Stack = createNativeStackNavigator();
 const FeedStack = createNativeStackNavigator();
 const ProfileStack = createNativeStackNavigator();
+const FriendStack = createNativeStackNavigator();
 
 const Tab = createBottomTabNavigator();
 
 // screenOptions={{headerShown: false}} 
-
+function FriendRequests() {
+  return (
+    <FeedStack.Navigator initialRouteName='FriendRequests' screenOptions={{headerShown:false}}>
+      <FeedStack.Screen name="FriendRequests" component={FriendRequestScreen}/>
+      <FeedStack.Screen name="FriendProfile" component={FriendProfileScreen}/>
+    </FeedStack.Navigator>
+  )
+}
 function Feed() {
   return (
     <FeedStack.Navigator initialRouteName='Posts' screenOptions={{headerShown: false}}>
@@ -49,7 +58,7 @@ function HomeNonTamagui() {
     <Tab.Navigator screenOptions={{headerShown: false, tabBarInactiveBackgroundColor: '#658141', tabBarActiveBackgroundColor: '#7FA351', tabBarActiveTintColor: '#2A6329', tabBarInactiveTintColor: '#123911', tabBarLabelStyle: {fontSize: 13}}} >
       <Tab.Screen options={{tabBarIcon: (tabInfo) => {return (<Icon name="home-outline" size={24} color={tabInfo.focused ? "#2A6329" : "#123911"} />);},}} name="Feed" component={Feed} tabBarLabel="Home"/>
       <Tab.Screen options={{tabBarIcon: (tabInfo) => {return (<Icon name="person-circle" size={30} color={tabInfo.focused ? "#2A6329" : "#123911"} />);},}} name="Profile" component={ProfileAndSettings} tabBarLabel="Profile"/>
-      <Tab.Screen options={{tabBarIcon: (tabInfo) => {return (<Icon name="person-add" size={24} color={tabInfo.focused ? "#2A6329" : "#123911"} />);},}} name="Friends" component={FriendRequestScreen} tabBarLabel="Friends"/>
+      <Tab.Screen options={{tabBarIcon: (tabInfo) => {return (<Icon name="person-add" size={24} color={tabInfo.focused ? "#2A6329" : "#123911"} />);},}} name="Friends" component={FriendRequests} tabBarLabel="Friends"/>
     </Tab.Navigator>
   );
 }

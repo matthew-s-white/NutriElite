@@ -198,7 +198,24 @@ async function fetchCommentsForPost(postId){
     }
 }
 
+async function getFriendPosts(friendId) {
+    try {
+        const record = await client.collection('posts').getFullList({
+            filter: `author = "${friendId}"`,
+            expand: "author",
+            sort: "-created"
+        });
+
+        //console.log(record);
+        return record;
 
 
-export {createNewPost, fetchMyPosts, likePost, unlikePost, fetchNutritionInfo, checkIfUserLiked, commentOnPost, fetchCommentsForPost};
+    } catch(e) {
+        console.log(e);
+        return [];
+    }
+}
+
+
+export {createNewPost, fetchMyPosts, likePost, unlikePost, fetchNutritionInfo, checkIfUserLiked, commentOnPost, fetchCommentsForPost, getFriendPosts};
 
