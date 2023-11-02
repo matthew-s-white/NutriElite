@@ -6,7 +6,7 @@ import { likePost, unlikePost, checkIfUserLiked } from '../backend/PostManagemen
 import { getItem } from '../backend/localStorage';
 import { useIsFocused } from "@react-navigation/native";
 
-const Post = ({ navigation, id, author, content, likeCount, postType, calories, protein, carbs, fat }) => {
+const Post = ({ navigation, id, author, content, likeCount, postType, calories, protein, carbs, fat, image }) => {
     const [liked, setLiked] = React.useState(false); // need to load in whether post is liked by current user
     const [likeCou, setLikedCou] = React.useState(likeCount);
 
@@ -38,7 +38,7 @@ const Post = ({ navigation, id, author, content, likeCount, postType, calories, 
     }
 
     const handlePress = () => {
-        navigation.navigate("PostDetails", {id: id, author: author, content: content, likeCount: likeCount, postType: postType, calories: calories, protein: protein, carbs: carbs, fat: fat});
+        navigation.navigate("PostDetails", {id: id, author: author, content: content, likeCount: likeCount, postType: postType, calories: calories, protein: protein, carbs: carbs, fat: fat, image: image});
     }
     return (
         <Card onPress={handlePress} width="95%" elevate backgroundColor="#A7D36F" marginLeft={10} marginRight={10} paddingLeft={25} paddingRight={50} paddingVertical={10} marginBottom={20}>
