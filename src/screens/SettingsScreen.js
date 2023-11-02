@@ -5,7 +5,7 @@ import {Button, SizableText, XStack, YStack} from 'tamagui';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ProfileScreen from './ProfileScreen';
 import { getItem, setItem} from '../backend/localStorage';
-import { checkUserExists, verifyPassword, getWeight, setWeight, updateUsername } from '../backend/UserManagement';
+import { checkUserExists, verifyPassword, getWeight, setWeight, updateUsername, updatePassword } from '../backend/UserManagement';
 
 
 const SettingsScreen = () => {
@@ -14,13 +14,16 @@ const SettingsScreen = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [newUsername, setNewUsername] = useState('');
-  const [modalVisible, setModalVisible] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [usernameModalVisible, setUsernameModalVisible] = useState(false);
+  const [passwordModalVisible, setPasswordModalVisible] = useState(false);
+
   
   const showToast = (msg) => {
     ToastAndroid.show(`Error: ${msg}`, ToastAndroid.LONG);
   };
 
-  const handleSave = async () => {
+  const handleUsernameSave = async () => {
     // Validate that currentUsername and password are correct
     const verify = await verifyPassword(username, password);
     if (verify){
@@ -44,8 +47,32 @@ const SettingsScreen = () => {
 
     //console.log("Settings saved:", { newUsername });
     alert('Settings saved!');
-    setModalVisible(false);
+    setUsernameModalVisible(false);
   };
+
+
+  const handlePasswordSave = async () => {
+    // Validate that currentUsername and password are correct
+    const verify = await verifyPassword(username, password);
+    if (verify){
+          const Id = await getItem("userId");
+          //console.log(Id);
+          const tryUpdate = await updatePassword(Id, newPassword);
+          if(tryUpdate){
+              await setItem('password', newPassword);
+          }
+    } else {
+        showToast("username or password is invalid");
+        return;
+    }
+    // Typically this involves calling an API to validate the information
+    // If valid, then allow to change the username
+
+    //console.log("Settings saved:", { newUsername });
+    alert('Settings saved!');
+    setPasswordModalVisible(false);
+  };
+
 
   return (
     <YStack alignItems="center" backgroundColor="#CEFF8F" fullscreen space>
@@ -53,9 +80,9 @@ const SettingsScreen = () => {
       <Modal
         animationType="slide"
         transparent={true}
-        visible={modalVisible}
+        visible={usernameModalVisible}
         onRequestClose={() => {
-          setModalVisible(!modalVisible);
+          setUsernameModalVisible(!usernameModalVisible);
         }}
       >
         <View style={styles.centeredView}>
@@ -84,13 +111,54 @@ const SettingsScreen = () => {
               placeholder="Enter your new username"
             />
 
-            <Button style={styles.button} onPress={handleSave}>Submit</Button>
-            <Button style={styles.button} onPress={() => setModalVisible(false)}>Cancel</Button>
+            <Button style={styles.button} onPress={handleUsernameSave}>Submit</Button>
+            <Button style={styles.button} onPress={() => setUsernameModalVisible(false)}>Cancel</Button>
           </View>
         </View>
       </Modal>
 
-      <Button title="Change Username" onPress={() => setModalVisible(true)}>Change Username</Button>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={passwordModalVisible}
+        onRequestClose={() => {
+          setPasswordModalVisible(!passwordModalVisible);
+        }}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.label}>Current Username:</Text>
+            <TextInput
+              style={styles.input}
+              value={username}
+              onChangeText={setUsername}
+              placeholder="Enter your current username"
+            />
+
+            <Text style={styles.label}>Password:</Text>
+            <TextInput
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Enter your password"
+              secureTextEntry
+            />
+            <Text style={styles.label}>New Password:</Text>
+            <TextInput
+              style={styles.input}
+              value={newPassword}
+              onChangeText={setNewPassword}
+              placeholder="Enter your new password"
+            />
+
+            <Button style={styles.button} onPress={handlePasswordSave}>Submit</Button>
+            <Button style={styles.button} onPress={() => setPasswordModalVisible(false)}>Cancel</Button>
+          </View>
+        </View>
+      </Modal>
+
+      <Button title="Change Username" onPress={() => setUsernameModalVisible(true)}>Change Username</Button>
+      <Button title="Change Password" onPress={() => setPasswordModalVisible(true)}>Change Password</Button>
     </YStack>
   );
 };

@@ -29,6 +29,7 @@ async function createNewUser(email, username, password, weight){
         //console.log(record);
         await setItem('username', username);
         await setItem('userId',  record.id);
+        await setItem('password', record[0].password);
         return true;
     } catch (e) {
         console.log(e);
@@ -87,6 +88,23 @@ async function updateUsername(userId, username){
     }
 }
 
+async function updatePassword(userId, password){
+    try{
+        const record = await client.collection('users').update(`${userId}`, {
+            "password": `${password}`
+        });
+        if (record.length == 0){
+            return false;
+        } else {
+            await setItem('password', password);
+            return true;
+        }
+    } catch (e){
+        console.log(e);
+        return false;
+    }
+}
+
 
 async function verifyPassword(emailOrUsername, password){
     try {
@@ -98,6 +116,7 @@ async function verifyPassword(emailOrUsername, password){
         } else {
             await setItem('username', record[0].username);
             await setItem('userId',  record[0].id);
+            await setItem('password', record[0].password);
             return true;
         }
     } catch (e){
@@ -259,4 +278,4 @@ async function getFriendRequests() {
 
 }
 
-export {createNewUser, checkUserExists, verifyPassword, getWeight, updateWeight, updateUsername, getUsers, getUserId, getFriendStatus, sendFriendRequest, acceptFriendRequest, declineFriendRequest, getFriendRequests};
+export {createNewUser, checkUserExists, verifyPassword, getWeight, updateWeight, updateUsername, updatePassword, getUsers, getUserId, getFriendStatus, sendFriendRequest, acceptFriendRequest, declineFriendRequest, getFriendRequests};

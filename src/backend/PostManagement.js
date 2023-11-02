@@ -46,26 +46,23 @@ async function fetchNutritionInfo(foodText){
 }
 
 
-async function createNewPost(content, author, postType, nutritionFacts){
+async function createNewPost(content, author, postType, nutritionFacts, image){
     try {
-        let postData = {
-            "content": content,
-            "author": author,
-            "postType": postType
-        };
+        const formData = new FormData();
+        if(image !== null){
+            formData.append('image', {uri: image.assets[0].uri, name: image.assets[0].fileName, type: image.assets[0].type});
+        }
+        formData.append('content', content);
+        formData.append('author', author);
+        formData.append('postType', postType);
         if (nutritionFacts.calories !== "0"){
-            postData = {
-                "content": content,
-                "author": author,
-                "postType": postType,
-                "calories": nutritionFacts.calories,
-                "protein": nutritionFacts.protein,
-                "carbs": nutritionFacts.carbs,
-                "fat": nutritionFacts.fat
-            }
+            formData.append('calories', nutritionFacts.calories);
+            formData.append('protein', nutritionFacts.protein);
+            formData.append('carbs', nutritionFacts.carbs);
+            formData.append('fat', nutritionFacts.fat);
         }
     
-        const record = await client.collection('posts').create(postData);
+        const record = await client.collection('posts').create(formData);
     
         console.log(record);
         return true;

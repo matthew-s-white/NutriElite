@@ -1,14 +1,16 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { Theme, Button, Form, YStack, SizableText, XStack, Card, CardProps, H4, H3, H6, H5, H2, H1, H7, Image, Paragraph, Switch, Select, Adapt, Sheet, View } from 'tamagui';
-import { TextInput, SafeAreaView, ScrollView, ToastAndroid } from 'react-native';
+import { TextInput, SafeAreaView, ScrollView, ToastAndroid, Dimensions } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list'
 import Icon from 'react-native-vector-icons/Ionicons';
 import { createNewPost, fetchNutritionInfo } from '../backend/PostManagement';
 import { getItem } from '../backend/localStorage';
+import {launchImageLibrary} from 'react-native-image-picker';
 
 const CreatePostScreen = ({ navigation }) => {
 
+  const dimensions = Dimensions.get('window');
   const errorMsg = "Entered blank or invalid input."
   const numRegex = /^(?:0|[1-9]\d+|)?(?:.?\d{0,1})?$/;
 
@@ -34,6 +36,7 @@ const CreatePostScreen = ({ navigation }) => {
   const [postType, setPostType] = useState('Workout');
   const [postInfo, setPostInfo] = useState([{ "numSets": "", "exerciseName": "", "numReps": "", "repMeasure": "", "weightNum": "", "weightType": "" }])
   const [submitted, setSubmitted] = useState(false);
+  const [resourcePath, setResourcePath] = useState({source: null});
 
   const handleSlider = (checked) => {
     if (checked) {
@@ -53,6 +56,49 @@ const CreatePostScreen = ({ navigation }) => {
     else {
       setPostInfo([...postInfo, { 'mealName': "", 'mealAmount': "", "mealMeasure": "" }]);
     }
+  }
+
+  const selectFile = () => {
+
+    var options = {
+
+      title: 'Select Image',
+
+      storageOptions: {
+
+        skipBackup: true,
+
+        path: 'images',
+
+      },
+
+    };
+
+    launchImageLibrary(options, res => {
+
+      console.log('Response = ', res);
+
+      if (res.didCancel) {
+
+        console.log('User cancelled image picker');
+
+      } else if (res.error) {
+
+        console.log('ImagePicker Error: ', res.error);
+
+      } else {
+
+        let source = res;
+
+        setResourcePath({
+
+          source: source,
+
+        });
+
+      }
+
+    });
   }
 
   const handleChange = (index, inputName, text) => {
@@ -142,7 +188,7 @@ const CreatePostScreen = ({ navigation }) => {
 
       const id = await getItem("userId");
 
-      const postCreated = await createNewPost(postContent, id, postType.toLowerCase(), nutritionFacts);
+      const postCreated = await createNewPost(postContent, id, postType.toLowerCase(), nutritionFacts, resourcePath.source);
 
       if (!postCreated) {
         showToast("Server error");
@@ -288,6 +334,7 @@ const CreatePostScreen = ({ navigation }) => {
             <Theme name="dark_green">
               <Button backgroundColor="#123911" fontColor="#000000" onPress={handlePost}>POST</Button>
             </Theme>
+            <Button onPress={selectFile} circular={true} theme='dark_green' backgroundColor='transparent' icon={<Icon elevate name="image" color="#123911" size={45} />}></Button>
           </XStack>
 
           {postType === "Meal" ? <YStack alignSelf="center" marginBottom={20} space>
@@ -296,6 +343,18 @@ const CreatePostScreen = ({ navigation }) => {
             <H3 style={{ fontWeight: "bold" }}>Carbs: {nutritionFacts.carbs}g</H3>
             <H3 style={{ fontWeight: "bold" }}>Fat: {nutritionFacts.fat}g</H3>
           </YStack> : null}
+
+          {resourcePath.source !== null ? 
+          <YStack alignSelf='center'>
+          <Image marginBottom={20} width={dimensions.width - 40} height={dimensions.height / 2} borderRadius={10}
+            resizeMode='cover'
+            source={{
+              uri: resourcePath.source.assets[0].uri,
+            }}
+          />
+          </YStack>
+
+          : null}
 
 
 

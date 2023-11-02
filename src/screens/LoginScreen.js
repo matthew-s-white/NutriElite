@@ -2,14 +2,31 @@ import * as React from 'react';
 import { Theme, Button, Form, YStack, SizableText, XStack} from 'tamagui';
 import { TextInput, ToastAndroid } from 'react-native';
 import { checkUserExists, verifyPassword } from '../backend/UserManagement';
+import { useEffect, useState } from 'react';
+import { getItem } from '../backend/localStorage';
 
 const LoginScreen = ({ navigation }) => {
-    const [emailOrUsername, setEmailOrUsername] = React.useState('');
-    const [password, setPassword] = React.useState('');
+    const [emailOrUsername, setEmailOrUsername] = useState('');
+    const [password, setPassword] = useState('');
 
     const showToast = (msg) => {
         ToastAndroid.show(`Error: ${msg}`, ToastAndroid.LONG);
     };
+
+    useEffect(() => {
+        async function getUserData(){
+            const tempUsername = await getItem('username');
+            if(tempUsername !== null){
+                setEmailOrUsername(tempUsername);
+            }
+
+            const tempPassword = await getItem('password');
+            if(tempPassword !== null){
+                setPassword(tempPassword);
+            }
+        }
+        getUserData();
+    }, [])
 
     async function submitLogin(){
         const emailOrUsernameExists = await checkUserExists(emailOrUsername, emailOrUsername);
@@ -33,8 +50,8 @@ const LoginScreen = ({ navigation }) => {
             <Form backgroundColor="#A7D36F" marginTop={25} marginBottom={50} marginLeft={30} marginRight={30} padding={30} borderRadius={20}>
                 {
                     <YStack space marginBottom={30} alignSelf="center">
-                        <TextInput backgroundColor="#FFFFFF" color="#000000" borderRadius={10} height={55} width={300} placeholder='Username/Email' placeholderTextColor="#123911" onChangeText={setEmailOrUsername}></TextInput>
-                        <TextInput secureTextEntry={true} backgroundColor="#FFFFFF" color="#000000" borderRadius={10} height={55} width={300} placeholder='Password' placeholderTextColor="#123911" onChangeText={setPassword}></TextInput>
+                        <TextInput value={emailOrUsername} backgroundColor="#FFFFFF" color="#000000" borderRadius={10} height={55} width={300} placeholder='Username/Email' placeholderTextColor="#123911" onChangeText={setEmailOrUsername}></TextInput>
+                        <TextInput value={password} secureTextEntry={true} backgroundColor="#FFFFFF" color="#000000" borderRadius={10} height={55} width={300} placeholder='Password' placeholderTextColor="#123911" onChangeText={setPassword}></TextInput>
 
                     </YStack>}
                 <Form.Trigger asChild>
