@@ -87,6 +87,23 @@ async function updateUsername(userId, username){
     }
 }
 
+async function updatePassword(userId, password){
+    try{
+        const record = await client.collection('users').update(`${userId}`, {
+            "password": `${password}`
+        });
+        if (record.length == 0){
+            return false;
+        } else {
+            await setItem('password', password);
+            return true;
+        }
+    } catch (e){
+        console.log(e);
+        return false;
+    }
+}
+
 
 async function verifyPassword(emailOrUsername, password){
     try {
@@ -106,4 +123,4 @@ async function verifyPassword(emailOrUsername, password){
     }
 }
 
-export {createNewUser, checkUserExists, verifyPassword, getWeight, updateWeight, updateUsername};
+export {createNewUser, checkUserExists, verifyPassword, getWeight, updateWeight, updateUsername, updatePassword};
