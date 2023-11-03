@@ -56,14 +56,18 @@ const PostDetailsScreen = ({ route, navigation }) => {
         setComment("");
     }
 
+    const handleAuthorClicked = () => {
+        navigation.navigate('FriendProfile', {username: postInfo.author });
+    }
+
     return (
         <YStack alignItems='center' backgroundColor="#CEFF8F" fullscreen={true} space>
             <SafeAreaView width="100%">
                 <ScrollView height="88%">
-                    <Icon style={{ alignSelf: 'flex-start', padding: 10 }} onPress={() => navigation.navigate("Posts")} name="arrow-back" size={30} marginTop={10} marginRight={250} color="#2A6329" />
+                    <Icon style={{ alignSelf: 'flex-start', padding: 10 }} onPress={() => navigation.goBack(null)} name="arrow-back" size={30} marginTop={10} marginRight={250} color="#2A6329" />
 
                     <Card width="95%" elevate backgroundColor="#A7D36F" marginLeft={10} marginRight={10} paddingLeft={25} paddingRight={25} paddingVertical={10} marginVertical={20}>
-                        <Text fontSize={25} padding={2} style={{ fontWeight: "bold" }} color="#123911">@{postInfo.author}</Text>
+                        <Text onPress={handleAuthorClicked} fontSize={25} padding={2} style={{ fontWeight: "bold" }} color="#123911">@{postInfo.author}</Text>
                         <View
                             style={{
                                 borderBottomColor: color = "#5B9A4C",
@@ -98,7 +102,7 @@ const PostDetailsScreen = ({ route, navigation }) => {
                     </Card>
 
                     {comments.map((comment, index) => {
-                        return <Comment key={index} author={comment.expand.author.username} content={comment.content} />
+                        return <Comment key={index} author={comment.expand.author.username} content={comment.content} navigation={navigation} />
                     })}
 
                     <XStack alignSelf='center' marginBottom={25} space>
