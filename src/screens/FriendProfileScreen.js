@@ -109,7 +109,7 @@ const FriendProfileScreen = ({ navigation, route }) => {
         <YStack alignItems='center' backgroundColor="#CEFF8F" fullscreen space>
             <SafeAreaView width="100%">
                 <ScrollView width="100%">
-                    <Icon style={{ alignSelf: 'flex-start', padding: 10 }} onPress={() => navigation.navigate('FriendRequests')} name="arrow-back" size={30} color="#2A6329" />
+                    <Icon style={{ alignSelf: 'flex-start', padding: 10 }} onPress={() => navigation.goBack(null)} name="arrow-back" size={30} color="#2A6329" />
 
                     <XStack style={{ alignSelf: 'center' }} marginBottom={15} space>
                         <YStack>
