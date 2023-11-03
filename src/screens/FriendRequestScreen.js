@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list'
 import { getUsers, getFriendRequests } from '../backend/UserManagement'
 import { useIsFocused } from '@react-navigation/native';
-import { H1 } from 'tamagui';
+import { H1, H5 } from 'tamagui';
 import Request from '../components/Request';
 
 
@@ -67,10 +67,11 @@ const FriendRequestScreen = ({ navigation }) => {
           setSelected={setSelected}
         /> : null}
 
-      {requests.map((request, index) => {
+      {requests.length == 0 ? 
+      <H5 margin={15} alignSelf='center'>No pending friend requests.</H5> :
+      requests.map((request, index) => {
         return <Request key={index} username={request} func={increment} />
       })}
-
 
     </YStack>
   );
