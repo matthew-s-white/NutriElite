@@ -16,6 +16,7 @@ const SettingsScreen = () => {
   const [password, setPassword] = useState('');
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [newPassword2, setNewPassword2] = useState('');
   const [usernameModalVisible, setUsernameModalVisible] = useState(false);
   const [passwordModalVisible, setPasswordModalVisible] = useState(false);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
@@ -58,6 +59,10 @@ const SettingsScreen = () => {
 
   const handlePasswordSave = async () => {
     // Validate that currentUsername and password are correct
+    if (newPassword != newPassword2){
+      showToast("new passwords do not match");
+      return;
+    }
     const verify = await verifyPassword(username, password);
     if (verify){
           const Id = await getItem("userId");
@@ -185,6 +190,14 @@ const SettingsScreen = () => {
               value={newPassword}
               onChangeText={setNewPassword}
               placeholder="Enter your new password"
+            />
+
+            <Text style={styles.label}>Confirm New Password:</Text>
+            <TextInput
+              style={styles.input}
+              value={newPassword2}
+              onChangeText={setNewPassword2}
+              placeholder="Enter your new password again"
             />
 
             <Button style={styles.button} onPress={handlePasswordSave}>Submit</Button>
