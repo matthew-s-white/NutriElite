@@ -4,6 +4,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list'
 import { getUsers, getFriendRequests } from '../backend/UserManagement'
 import { useIsFocused } from '@react-navigation/native';
+import { H1 } from 'tamagui';
+import Request from '../components/Request';
 
 
 const FriendRequestScreen = ({ navigation }) => {
@@ -12,51 +14,64 @@ const FriendRequestScreen = ({ navigation }) => {
   const [data, setData] = React.useState([]);
   const isFocused = useIsFocused();
   const [requests, setRequests] = React.useState([]);
+  const [dummy, setDummy] = React.useState(0);
 
   React.useEffect(() => {
     async function fetchData() {
       const records = await getUsers();
-      
+
       var users = [];
-      for(var i=0; i < records.length; i++) {
-        item = {key: '' + i, value: records[i]['username']}
+      for (var i = 0; i < records.length; i++) {
+        item = { key: '' + i, value: records[i]['username'] }
         users.push(item);
       }
       setData(users);
       setSelected('');
-      console.log(selected);
+      //console.log(selected);
 
-      const requests = await getFriendRequests();
+      const requestsdb = await getFriendRequests();
       var pending = []
-      for(var i=0; i < requests.length; i++) {
-          pending.push(requests[i].expand.sender.username);
+      for (var i = 0; i < requestsdb.length; i++) {
+        pending.push(requestsdb[i].expand.sender.username);
       }
 
       console.log(pending);
 
-      
+      setRequests(pending);
+
+
     }
     fetchData();
-  }, [isFocused])
+  }, [isFocused, dummy])
 
 
   const handleUserClicked = () => {
-    navigation.navigate('FriendProfile', {username: selected });
+    navigation.navigate('FriendProfile', { username: selected });
+  }
+
+  const increment = () => {
+    setDummy(dummy + 1);
   }
 
   return (
     <YStack alignItems='center' backgroundColor="#CEFF8F" flex={1} padding={20} fullscreen space>
       {isFocused ?
-      <SelectList
-        data={data}
-        save="value"
-        placeholder="Search for users"
-        search={true}
-        boxStyles={{ borderRadius: 20, width: 300 }}
-        maxHeight={130}
-        onSelect={handleUserClicked}
-        setSelected={setSelected}
-      />: null}
+        <SelectList
+          data={data}
+          save="value"
+          placeholder="Search for users"
+          search={true}
+          boxStyles={{ borderRadius: 20, width: 300 }}
+          maxHeight={130}
+          onSelect={handleUserClicked}
+          setSelected={setSelected}
+        /> : null}
+
+      {requests.map((request, index) => {
+        return <Request key={index} username={request} func={increment} />
+      })}
+
+
     </YStack>
   );
 }

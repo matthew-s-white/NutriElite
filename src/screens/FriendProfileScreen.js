@@ -74,27 +74,27 @@ const FriendProfileScreen = ({ navigation, route }) => {
     React.useEffect(() => {
         async function updateDatabase() {
 
-            if(status == 2) {
+            if (status == 2) {
                 // check what current status is (if a request has already been sent)
                 const currStatus = await getFriendStatus(userId, friendId);
 
-                if(currStatus == 1) {
+                if (currStatus == 1) {
                     await sendFriendRequest(userId, friendId);
-                }  
+                }
             }
-            else if(status == 4) {
+            else if (status == 4) {
                 const currStatus = await getFriendStatus(userId, friendId);
 
-                if(currStatus == 3) {
+                if (currStatus == 3) {
                     await acceptFriendRequest(friendId, userId);
                     setAccepted(true);
                 }
-                
+
             }
-            else if(status == 1) {
+            else if (status == 1) {
                 const currStatus = await getFriendStatus(userId, friendId);
 
-                if(currStatus == 3) {
+                if (currStatus == 3) {
                     await declineFriendRequest(friendId, userId);
                 }
             }
@@ -109,17 +109,20 @@ const FriendProfileScreen = ({ navigation, route }) => {
         <YStack alignItems='center' backgroundColor="#CEFF8F" fullscreen space>
             <SafeAreaView width="100%">
                 <ScrollView width="100%">
-                    <Icon style={{ alignSelf: 'flex-start', padding: 10 }} onPress={() => navigation.goBack(null)} name="arrow-back" size={30} color="#2A6329" />
-                    <Icon style={{ alignSelf: 'center' }} name="person-circle-outline" size={200} color={"#2A6329"} />
-                    <SizableText alignSelf='center' size="$6" color="#123911">{friendUsername}</SizableText>
-                    <XStack style={{ alignSelf: 'center' }} space padding={10}>
-                        <YStack marginRight={20} padding={5} alignItems='center'>
-                            <SizableText alignSelf='center' size="$6" color="#123911" font-weight="bold">WEIGHT</SizableText>
-                            <SizableText alignSelf='center' size="$5" color="#123911">{friendWeight} lbs.</SizableText>
+                    <Icon style={{ alignSelf: 'flex-start', padding: 10 }} onPress={() => navigation.navigate('FriendRequests')} name="arrow-back" size={30} color="#2A6329" />
+
+                    <XStack style={{ alignSelf: 'center' }} marginBottom={15} space>
+                        <YStack>
+                            <Icon style={{ alignSelf: 'center', paddingLeft: 0 }} name="person-circle-outline" size={150} color={"#2A6329"} />
+                            <SizableText size="$6" color="#123911" paddingLeft="$10">{friendUsername}</SizableText>
                         </YStack>
-                        <YStack marginLeft={20} padding={5} alignItems='center'>
-                            <SizableText size="$6" color="#123911" font-weight="bold">AVG CAL/DAY</SizableText>
-                            <SizableText size="$5" color="#123911">{cal} kcal</SizableText>
+                        <YStack style={{ alignSelf: 'center' }} padding={10}>
+                            <YStack style={{ alignSelf: 'center' }} paddingBottom={15}>
+                                <SizableText size="$6" color="#123911" font-weight="bold">WEIGHT</SizableText>
+                                <SizableText alignSelf='center' size="$5" color="#123911">{friendWeight} lbs.</SizableText>
+                            </YStack>
+                            <SizableText style={{ alignSelf: 'center' }} size="$6" color="#123911" font-weight="bold">AVG CAL/DAY</SizableText>
+                            <SizableText style={{ alignSelf: 'center' }} size="$5" color="#123911">{cal} kcal</SizableText>
                         </YStack>
                     </XStack>
 
@@ -143,7 +146,7 @@ const FriendProfileScreen = ({ navigation, route }) => {
 
                     {status == 4 ?
                         friendPosts.map((post, index) => {
-                            return <Post key={index} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} calories={post.calories} protein={post.protein} carbs={post.carbs} fat={post.fat} navigation={navigation} />
+                            return <Post key={index} image={post.image} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} calories={post.calories} protein={post.protein} carbs={post.carbs} fat={post.fat} navigation={navigation} />
                         }) : null}
 
                 </ScrollView>

@@ -17,6 +17,7 @@ async function checkUserExists(email, username){
     }
 }
 
+
 async function createNewUser(email, username, password, weight){
     try {
         const userData = {
@@ -281,7 +282,8 @@ async function getFriendRequests() {
         const userId = await getItem('userId');
         const request = await client.collection('friends').getFullList({
             filter: `recipient = "${userId}" && accepted = false`,
-            expand: "sender"
+            expand: "sender",
+            sort: "-created"
         })
 
         console.log(request);

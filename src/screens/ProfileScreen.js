@@ -9,9 +9,7 @@ import { useIsFocused } from "@react-navigation/native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
 import Post from '../components/Post';
-
-
-
+import { fetchFriendIds } from '../backend/PostManagement';
 
 
 
@@ -87,26 +85,28 @@ const ProfileScreen = ({ navigation }) => {
     return (
       
       <YStack alignItems='center' backgroundColor="#CEFF8F" fullscreen space>
+        <SafeAreaView width="100%">
+        <ScrollView width="100%" >
         <Icon  style={{ alignSelf: 'flex-end', padding: 10}} onPress={() => navigation.navigate('Settings')} name="settings-sharp" size={30} color="#2A6329"/>
-        <XStack space>
+        <XStack style={{ alignSelf: 'center' }} space>
           <YStack>
-            <Icon style={{ paddingLeft: 0}} name="person-circle-outline" size={150} color={"#2A6329"} />
-            <SizableText size="$6" color="#123911" paddingLeft="$10">{username}</SizableText>
+            <Icon style={{ alignSelf: 'center', paddingLeft: 0}} name="person-circle-outline" size={150} color={"#2A6329"} />
+            <SizableText   size="$6" color="#123911" paddingLeft="$10">{username}</SizableText>
           </YStack>
-          <YStack padding={10}>
-            <YStack paddingBottom={15}>
+          <YStack style={{ alignSelf: 'center' }}  padding={10}>
+            <YStack style={{ alignSelf: 'center' }}  paddingBottom={15}>
               <SizableText size="$6" color="#123911" font-weight="bold">WEIGHT</SizableText>
               <XStack>
                 {isEditable ? <TextInput backgroundColor="#FFFFFF" color="#000000" borderRadius={10} height={40} width={50} keyboardType='numeric' onChangeText={setUserWeight}></TextInput> : <SizableText size="$5" color="#123911">{userWeight} lbs.</SizableText>}
                 <Icon onPress={submitInfo} name="create" size={30} color={"#2A6329"} /> 
               </XStack>
             </YStack>
-            <SizableText size="$6" color="#123911" font-weight="bold">AVG CAL/DAY</SizableText>
-            <SizableText size="$5" color="#123911">{cal} kcal</SizableText>
+            <SizableText style={{ alignSelf: 'center' }} size="$6" color="#123911" font-weight="bold">AVG CAL/DAY</SizableText>
+            <SizableText style={{ alignSelf: 'center' }} size="$5" color="#123911">{cal} kcal</SizableText>
           </YStack>
         </XStack>
 
-        <YStack space marginTop={30}>
+        <YStack space marginVertical={30} style={{ alignSelf: 'center' }} >
 
           <Slider defaultValue={[50]} max={100} width={175} step={50} onValueChange={(value) => handleSlider(value[0])}>
             <Slider.Track backgroundColor='#658141'>
@@ -115,39 +115,33 @@ const ProfileScreen = ({ navigation }) => {
             <Slider.Thumb backgroundColor="#123911" index={0} circular elevate />
           </Slider>
 
-          <XStack space>
-              <Text color="#123911" fontSize={11}>WORKOUTS</Text>
-              <Text color="#123911"  marginRight={15} fontSize={11}>ALL</Text>
-              <Text color="#123911" fontSize={11}>MEALS</Text>
+          <XStack style={{ alignSelf: 'center' }} space>
+              <Text color="#123911" fontSize={8}>WORKOUTS</Text>
+              <Text color="#123911"  marginRight={8} fontSize={8}>ALL</Text>
+              <Text color="#123911" fontSize={8}>MEALS</Text>
           </XStack>
 
         </YStack>
 
-        <SafeAreaView width="100%" marginBottom={40}>
-        <ScrollView >
+        
           
           {feedType === "meal" ? posts.map((post, index) => {
             if(post.postType === "meal"){
-              return <Post key={index} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} calories={post.calories} protein={post.protein} carbs={post.carbs} fat={post.fat} navigation={navigation}/>
+              return <Post key={index} image={post.image} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} calories={post.calories} protein={post.protein} carbs={post.carbs} fat={post.fat} navigation={navigation}/>
             }
           }) : null}
 
           {feedType === "workout" ? posts.map((post, index) => {
             if(post.postType === "workout"){
-              return <Post key={index} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} calories={0} protein={0} carbs={0} fat={0} navigation={navigation}/>
+              return <Post key={index} image={post.image} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} calories={0} protein={0} carbs={0} fat={0} navigation={navigation}/>
             }
           }) : null}
 
           {feedType === "" ? posts.map((post, index) => {
-            return <Post key={index} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} calories={post.calories} protein={post.protein} carbs={post.carbs} fat={post.fat} navigation={navigation}/>
+            return <Post key={index} image={post.image} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} calories={post.calories} protein={post.protein} carbs={post.carbs} fat={post.fat} navigation={navigation}/>
           }) : null}
 
-          <XStack alignSelf='center' marginBottom={25} space>
-            <View style={{
-              borderBottomColor: color = "#CEFF8F",
-              borderBottomWidth: 1,
-            }}></View>
-          </XStack>
+
 
         </ScrollView>
       </SafeAreaView>
