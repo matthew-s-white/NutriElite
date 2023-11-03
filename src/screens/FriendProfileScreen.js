@@ -37,9 +37,15 @@ const FriendProfileScreen = ({ navigation, route }) => {
             const id2 = await getUserId(friendUsername);
             setFriendId(id2);
 
-            const requestStatus = await getFriendStatus(id1, id2);
-            console.log(requestStatus);
-            setStatus(requestStatus);
+            let requestStatus;
+            if(id1 === id2){
+                requestStatus = 4;
+                setStatus(requestStatus);
+            } else {
+                requestStatus = await getFriendStatus(id1, id2);
+                console.log(requestStatus);
+                setStatus(requestStatus);
+            }
 
             if (requestStatus == 4) {
                 const posts = await getFriendPosts(id2);
@@ -103,7 +109,7 @@ const FriendProfileScreen = ({ navigation, route }) => {
         <YStack alignItems='center' backgroundColor="#CEFF8F" fullscreen space>
             <SafeAreaView width="100%">
                 <ScrollView width="100%">
-                    <Icon style={{ alignSelf: 'flex-start', padding: 10 }} onPress={() => navigation.navigate('FriendRequests')} name="arrow-back" size={30} color="#2A6329" />
+                    <Icon style={{ alignSelf: 'flex-start', padding: 10 }} onPress={() => navigation.goBack(null)} name="arrow-back" size={30} color="#2A6329" />
                     <Icon style={{ alignSelf: 'center' }} name="person-circle-outline" size={200} color={"#2A6329"} />
                     <SizableText alignSelf='center' size="$6" color="#123911">{friendUsername}</SizableText>
                     <XStack style={{ alignSelf: 'center' }} space padding={10}>

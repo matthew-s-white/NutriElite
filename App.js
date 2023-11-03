@@ -39,6 +39,7 @@ function Feed() {
       <FeedStack.Screen name="Posts" component={HomeScreen}/>
       <FeedStack.Screen name="CreatePost" component={CreatePostScreen}/>
       <FeedStack.Screen name="PostDetails" component={PostDetailsScreen}/>
+      <FeedStack.Screen name="FriendProfile" component={FriendProfileScreen}/>
     </FeedStack.Navigator>
   )
 }

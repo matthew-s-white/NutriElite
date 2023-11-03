@@ -86,7 +86,9 @@ const SettingsScreen = () => {
           //console.log(Id);
           const tryDelete = await deleteAccount(Id);
           if(tryDelete){
-            await removeItem(Id);
+            await removeItem('userId');
+            await removeItem('username');
+            await removeItem('password');
           }
     } else {
         showToast("username or password is invalid");
