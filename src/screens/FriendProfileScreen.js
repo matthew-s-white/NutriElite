@@ -37,9 +37,15 @@ const FriendProfileScreen = ({ navigation, route }) => {
             const id2 = await getUserId(friendUsername);
             setFriendId(id2);
 
-            const requestStatus = await getFriendStatus(id1, id2);
-            console.log(requestStatus);
-            setStatus(requestStatus);
+            let requestStatus;
+            if(id1 === id2){
+                requestStatus = 4;
+                setStatus(requestStatus);
+            } else {
+                requestStatus = await getFriendStatus(id1, id2);
+                console.log(requestStatus);
+                setStatus(requestStatus);
+            }
 
             if (requestStatus == 4) {
                 const posts = await getFriendPosts(id2);
