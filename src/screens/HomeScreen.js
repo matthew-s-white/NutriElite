@@ -8,6 +8,7 @@ import Post from '../components/Post';
 import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { fetchHomePosts } from '../backend/PostManagement';
 
 const HomeScreen = ({ navigation }) => {
 
@@ -17,7 +18,7 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     async function getPosts() {
-      const data = await fetchMyPosts();
+      const data = await fetchHomePosts();
       setPosts(data);
     }
     getPosts();
