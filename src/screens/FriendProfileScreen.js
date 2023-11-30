@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, Modal, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Theme, Button, SizableText, XStack, YStack } from 'tamagui';
 import { getItem } from '../backend/localStorage';
-import { checkUserExists, verifyPassword, getWeight, updateWeight, getUserId, getFriendStatus, sendFriendRequest } from '../backend/UserManagement';
+import { checkUserExists, verifyPassword, getWeight, updateWeight, getUserId, getFriendStatus, sendFriendRequest, deleteFriend } from '../backend/UserManagement';
 import { useIsFocused } from "@react-navigation/native";
 import { getFriendPosts } from '../backend/PostManagement';
 import { ScrollView } from 'react-native';
@@ -26,6 +26,8 @@ const FriendProfileScreen = ({ navigation, route }) => {
     const [accepted, setAccepted] = React.useState(false);
     // 1 = not friends, 2 = user has sent a pending request, 3 = user has incoming request, 4 = friends
 
+    const [deleteFriendModal, setDeleteFriendModal] = React.useState(false); // state var gto determine whether to put the pop-up or not
+
     React.useEffect(() => {
         async function fetchData() {
             //console.log("ive been triggered")
@@ -38,7 +40,7 @@ const FriendProfileScreen = ({ navigation, route }) => {
             setFriendId(id2);
 
             let requestStatus;
-            if(id1 === id2){
+            if (id1 === id2) {
                 requestStatus = 4;
                 setStatus(requestStatus);
             } else {
@@ -71,6 +73,11 @@ const FriendProfileScreen = ({ navigation, route }) => {
         setStatus(1);
     }
 
+    const removeFriend = () => {
+        setStatus(1);
+        setDeleteFriendModal(false);
+    }
+
     React.useEffect(() => {
         async function updateDatabase() {
 
@@ -96,6 +103,11 @@ const FriendProfileScreen = ({ navigation, route }) => {
 
                 if (currStatus == 3) {
                     await declineFriendRequest(friendId, userId);
+                }
+
+                // remove friend
+                if (currStatus == 4) {
+                    await deleteFriend(userId, friendId);
                 }
             }
         }
@@ -126,6 +138,24 @@ const FriendProfileScreen = ({ navigation, route }) => {
                         </YStack>
                     </XStack>
 
+                    <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={deleteFriendModal}
+                        onRequestClose={() => {
+                            setDeleteFriendModal(!deleteFriendModal);
+                        }}
+                    >
+                        <View style={styles.centeredView}>
+                            <View style={styles.modalView}>
+                                <Text style={styles.label}>Are you sure you want to remove this user as a friend?</Text>
+
+                                <Button style={styles.button} onPress={removeFriend}>Remove Friend</Button>
+                                <Button style={styles.button} onPress={() => setDeleteFriendModal(false)}>Cancel</Button>
+                            </View>
+                        </View>
+                    </Modal>
+
                     {status == 1 ?
                         <Theme name="dark_green">
                             <Button style={{ alignSelf: 'center' }} onPress={handleAddFriend} fontSize={18} iconAfter={<Icon elevate name="people-outline" color="white" size={25} />}>Add Friend</Button>
@@ -144,10 +174,18 @@ const FriendProfileScreen = ({ navigation, route }) => {
                             </XStack>
                         </Theme> : null}
 
+
+                    {status == 4 ?
+                        <Theme name="dark_green" >
+                            <Button style={{ alignSelf: 'center', margin: 15 }} onPress={() => setDeleteFriendModal(true)} fontSize={18} iconAfter={<Icon elevate name="person-remove-outline" color="white" size={25} />}>Remove Friend</Button>
+                        </Theme>
+                        : null}
+
                     {status == 4 ?
                         friendPosts.map((post, index) => {
                             return <Post key={index} image={post.image} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} calories={post.calories} protein={post.protein} carbs={post.carbs} fat={post.fat} navigation={navigation} />
                         }) : null}
+
 
                 </ScrollView>
 
@@ -156,5 +194,39 @@ const FriendProfileScreen = ({ navigation, route }) => {
         </YStack>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        padding: 16,
+    },
+    label: {
+        fontSize: 16,
+        marginBottom: 10,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: 'gray',
+        padding: 10,
+        marginBottom: 20,
+    },
+    button: {
+        marginBottom: 10,
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalView: {
+        width: '80%',
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'stretch',
+        elevation: 5,
+    },
+});
 
 export default FriendProfileScreen;
