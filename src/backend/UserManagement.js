@@ -277,6 +277,45 @@ async function declineFriendRequest(senderId, recipientId) {
     }
 }
 
+async function deleteFriend(userId, friendId) {
+    try {
+        const record = await client.collection('friends').getFullList({
+            filter: `sender = "${userId}" && recipient = "${friendId}"`
+        });
+
+        // check if user has an incoming request
+        const record2 = await client.collection('friends').getFullList({
+            filter: `sender = "${friendId}" && recipient = "${userId}"`
+        });
+
+        if(record.length == 0) {
+            const request = await client.collection('friends').getFullList({
+                filter: `sender = "${friendId}" && recipient = "${userId}"`
+            })
+    
+            const requestId = request[0]['id']
+            //console.log(requestId);
+    
+            await client.collection('friends').delete(requestId);
+        }
+        else {
+            const request = await client.collection('friends').getFullList({
+                filter: `sender = "${userId}" && recipient = "${friendId}"`
+            })
+    
+            const requestId = request[0]['id']
+            //console.log(requestId);
+    
+            await client.collection('friends').delete(requestId);
+        }
+
+
+    } catch(e) {
+        console.log(e);
+        return false;
+    }
+}
+
 async function getFriendRequests() {
     try {
         const userId = await getItem('userId');
@@ -296,4 +335,4 @@ async function getFriendRequests() {
 
 }
 
-export {createNewUser, checkUserExists, verifyPassword, getWeight, updateWeight, updateUsername, updatePassword, deleteAccount, getUsers, getUserId, getFriendStatus, sendFriendRequest, acceptFriendRequest, declineFriendRequest, getFriendRequests};
+export {createNewUser, checkUserExists, verifyPassword, getWeight, updateWeight, updateUsername, updatePassword, deleteAccount, getUsers, getUserId, getFriendStatus, sendFriendRequest, acceptFriendRequest, declineFriendRequest, getFriendRequests, deleteFriend};
