@@ -1,17 +1,16 @@
 import * as React from 'react';
-import { StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, ScrollView, View} from 'react-native';
+import { StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, ScrollView, View, Dimensions} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {Button, SizableText, XStack, YStack, Slider} from 'tamagui';
 import { getItem } from '../backend/localStorage';
-import { checkUserExists, verifyPassword, getWeight, updateWeight } from '../backend/UserManagement';
+import { checkUserExists, verifyPassword, getWeight, updateWeight, addWeight, getWeights} from '../backend/UserManagement';
 import { fetchMyPosts } from '../backend/PostManagement';
 import { useIsFocused } from "@react-navigation/native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
 import Post from '../components/Post';
 import { fetchFriendIds } from '../backend/PostManagement';
-
-
+import { LineChart } from 'react-native-chart-kit';
 
 
 
@@ -25,7 +24,22 @@ const ProfileScreen = ({ navigation }) => {
   const [username, setUsername] = React.useState("")
   const [posts, setPosts] = useState([]);
   const [feedType, setFeedType] = useState("");
+  const [weights, setWeights] = useState([]);
+  const [chartConfig, setChartConfig] = useState({
+    backgroundColor: '#2A6329',
+    backgroundGradientFrom: '#2A6329',
+    backgroundGradientTo: '#2A6329',
+    decimalPlaces: 0,
+    color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+    labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+    style: {
+        borderRadius: 16
+    }
+  });
+
   const isFocused = useIsFocused();
+
+  
 
 
   React.useEffect(() => {
@@ -39,9 +53,24 @@ const ProfileScreen = ({ navigation }) => {
         setUserWeight(0);
       } else {
         setUserWeight(weight);
-      }
-    }
+        const weightProgress = await getWeights();
+        //console.log(weightProgress);
+      if (weightProgress == false){
+        console.log("weights not retrieved");
+      } else {
 
+        const chartData = {
+          labels: weightProgress.map(item =>  formatDate(item.created)), // Map 'created' for labels
+          datasets: [{
+            data: weightProgress.map(item => item.weight) // Map 'weight' for dataset data
+          }]
+        };
+        setWeights(chartData);
+      }
+
+      }
+
+    }
     async function getPosts() {
       const data = await fetchMyPosts();
       setPosts(data);
@@ -49,7 +78,19 @@ const ProfileScreen = ({ navigation }) => {
 
     fetchData();
     getPosts();
-  },[isFocused, feedType])
+  },[isFocused, feedType, isEditable])
+
+  React.useEffect(() => {
+    console.log('Weights State:', weights);
+    if (weights.datasets && weights.datasets.length > 0) {
+      console.log('Data Array:', weights.datasets[0].data);
+    }
+  }, [weights]);
+
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    return `${date.getMonth() + 1}/${date.getDate()}`; // Converts to MM/DD format
+  }
 
   const handleSlider = (value) => {
     if(value == 0) {
@@ -67,7 +108,12 @@ const ProfileScreen = ({ navigation }) => {
 
 
   const submitInfo = async () => {
-      setIsEditable(!isEditable)
+    if (!isEditable){
+      console.log("in here");
+      setIsEditable(!isEditable);
+      return;
+    }
+      setIsEditable(!isEditable);
       if(userWeight === ''){
         console.log("weight is invalid");
         showToast(weightErrorMsg);
@@ -77,6 +123,7 @@ const ProfileScreen = ({ navigation }) => {
         //console.log(userWeight);
         //console.log(Id);
         await updateWeight(Id, userWeight);
+        await addWeight(Id, userWeight);
         //add call to backend to update weight
       }
   }
@@ -97,8 +144,8 @@ const ProfileScreen = ({ navigation }) => {
             <YStack style={{ alignSelf: 'center' }}  paddingBottom={15}>
               <SizableText size="$6" color="#123911" font-weight="bold">WEIGHT</SizableText>
               <XStack>
-                {isEditable ? <TextInput backgroundColor="#FFFFFF" color="#000000" borderRadius={10} height={40} width={50} keyboardType='numeric' onChangeText={setUserWeight}></TextInput> : <SizableText size="$5" color="#123911">{userWeight} lbs.</SizableText>}
-                <Icon onPress={submitInfo} name="create" size={30} color={"#2A6329"} /> 
+                {isEditable ? <TextInput backgroundColor="#FFFFFF" color="#000000" borderRadius={10} height={40} width={50} keyboardType='numeric' value={userWeight} onChangeText={setUserWeight}></TextInput> : <SizableText size="$5" color="#123911">{userWeight} lbs.</SizableText>}
+                <Icon onPress={submitInfo} name="create" size={30} color={"#2A6329"} />
               </XStack>
             </YStack>
             <SizableText style={{ alignSelf: 'center' }} size="$6" color="#123911" font-weight="bold">AVG CAL/DAY</SizableText>
@@ -107,13 +154,30 @@ const ProfileScreen = ({ navigation }) => {
         </XStack>
 
         <YStack space marginVertical={30} style={{ alignSelf: 'center' }} >
-
-          <Slider defaultValue={[50]} max={100} width={175} step={50} onValueChange={(value) => handleSlider(value[0])}>
-            <Slider.Track backgroundColor='#658141'>
-              <Slider.TrackActive backgroundColor='#7FA351' />
-            </Slider.Track>
-            <Slider.Thumb backgroundColor="#123911" index={0} circular elevate />
-          </Slider>
+          {weights.datasets && weights.datasets.length > 0 && (
+             <View style={{
+              borderRadius: 20, // Adjust the value as needed
+              overflow: 'hidden', // This is important to make borderRadius work
+              backgroundColor: 'white' // Set the background color as needed
+            }}>
+              <LineChart
+                data={weights}
+                width={350}
+                height={230}
+                verticalLabelRotation={30}
+                chartConfig={chartConfig}
+                bezier  
+              />
+            </View>
+          )}
+          <View style={styles.sliderContainer}>
+            <Slider defaultValue={[50]} marginRight={40} max={100} width={175} step={50} onValueChange={(value) => handleSlider(value[0])}>
+              <Slider.Track backgroundColor='#658141'>
+                <Slider.TrackActive backgroundColor='#7FA351' />
+              </Slider.Track>
+              <Slider.Thumb backgroundColor="#123911" index={0} circular elevate />
+            </Slider>
+          </View>
 
           <XStack style={{ alignSelf: 'center' }} space>
               <Text color="#123911" fontSize={8}>WORKOUTS</Text>
@@ -159,5 +223,12 @@ const styles = StyleSheet.create({
       backgroundColor: '#fff',
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    sliderContainer: {
+      flexDirection: 'row', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      width: '100%', 
+      marginTop: 20,
     },
   })
