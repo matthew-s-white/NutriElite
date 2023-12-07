@@ -19,6 +19,43 @@ function nutritionAnalysisPrintable(nutritionInfo){
     return nutrients;
 }
 
+function mealPrintable(meal){
+    let result = "";
+    if(meal.sections){
+        const keys = Object.keys(meal.sections);
+        let courseIter = 0;
+        result += "\n";
+        for(course in meal.sections){
+            result += (keys[courseIter] + ": " + meal.sections[course].assigned + "\n");
+            courseIter++;
+        }
+    } else {
+        result += (meal.assigned + "\n");
+    }
+    return result;
+}
+
+function mealPlanPrintable(mealPlan){
+    let response = "\n";
+    let dayCount = 1;
+    for(item in mealPlan.selections){
+        response += `Day ${dayCount}:\n`;
+        dayCount++;
+
+        const keys = Object.keys(mealPlan.selecitons[item].sections);
+        let mealIter = 0;
+        for(meal in mealPlan.selections[item].sections){
+            console.log(keys[mealIter] + ": " + mealPrintable(mealPlan.selections[item].sections[meal]));
+            mealIter++;
+        }
+        response += "\n";
+    }
+}
+
+function recipesPrintable(recipes){
+
+}
+
 async function fetchMealResponse(msgType, mealMessage) {
     try {
         const reqBody = 
@@ -56,17 +93,19 @@ async function fetchMealResponse(msgType, mealMessage) {
             console.log(responseInfo);
             const res2 = await fetch("https://api.edamam.com" + responseInfo.uri + `&app_id=${app_id}&app_key=${app_key}`, {
                 "method": responseInfo.method,
-                "headers": {
-                    "Content-Type": "application/json",
-                },
-                "body": JSON.stringify({"ingr": responseInfo.body.ingr})
+                "headers": responseInfo.headers ? JSON.stringify(responseInfo.headers) : null,
+                "body": responseInfo.body ? JSON.stringify(responseInfo.body) : null
             });
 
             const nutritionInfo = await res2.json();
             console.log(nutritionInfo);
-            
-            console.log("Here's what I found for the nutrition analysis of " + responseInfo.body.ingr.join(", ") + ":\n" + nutritionAnalysisPrintable(nutritionInfo));
-            return ("Here's what I found for the nutrition analysis of " + responseInfo.body.ingr.join(", ") + ":\n" + nutritionAnalysisPrintable(nutritionInfo));
+            if(msgType == "calculate_nutrients"){
+                return ("Here's what I found for the nutrition analysis of " + responseInfo.body.ingr.join(", ") + ":\n" + nutritionAnalysisPrintable(nutritionInfo));
+            } else if(msgType == "calculate_meal_plan"){
+                return ("Here's a potential meal plan I've generated that fits your criteria:\n" + mealPlanPrintable(nutritionInfo));
+            } else if(msgType == "search"){
+                return ("Here's a few recipes I found:\n" + recipesPrintable(nutritionInfo));
+            }
         } else {
             console.log(res);
             if(res.status == 400 || res.status == 502){
