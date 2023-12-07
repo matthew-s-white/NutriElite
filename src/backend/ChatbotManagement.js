@@ -50,10 +50,16 @@ function mealPlanPrintable(mealPlan){
         }
         response += "\n";
     }
+    return response;
 }
 
 function recipesPrintable(recipes){
-
+    let response = "\n";
+    let recipeCount = 1;
+    for(recipe in recipes.hits){
+        response += ("Recipe #" + recipeCount + ":\n" + recipes.hits[recipe].recipe.shareAs + "\n");
+    }
+    return response;
 }
 
 async function fetchMealResponse(msgType, mealMessage) {
