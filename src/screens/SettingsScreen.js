@@ -6,7 +6,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import ProfileScreen from './ProfileScreen';
 import LoginScreen from './LoginScreen';
 import { getItem, setItem, removeItem} from '../backend/localStorage';
-import { checkUserExists, verifyPassword, getWeight, setWeight, updateUsername, updatePassword, deleteAccount } from '../backend/UserManagement';
+import { checkUserExists, verifyPassword, getWeight, setWeight, updateUsername, updatePassword, deleteAccount, updatePasswordWithEmail } from '../backend/UserManagement';
 
 
 const SettingsScreen = () => {
@@ -28,6 +28,15 @@ const SettingsScreen = () => {
   const showToast = (msg) => {
     ToastAndroid.show(`Error: ${msg}`, ToastAndroid.LONG);
   };
+
+  const showMessage = (msg) => {
+    ToastAndroid.show(`${msg}`, ToastAndroid.LONG);
+  };
+
+  const handlePasswordChange = async () => {
+    await updatePasswordWithEmail();
+    showMessage("Check your email for password reset instructions.")
+  }
 
   const handleUsernameSave = async () => {
     // Validate that currentUsername and password are correct
@@ -260,7 +269,7 @@ const SettingsScreen = () => {
 
       <Theme name="dark_green">
         <Button style={{marginBottom: 15}} title="Change Username" onPress={() => setUsernameModalVisible(true)}>Change Username</Button>
-        <Button style={{marginBottom: 15}} title="Change Password" onPress={() => setPasswordModalVisible(true)}>Change Password</Button>
+        <Button style={{marginBottom: 15}} title="Change Password" onPress={() => handlePasswordChange()}>Change Password</Button>
         <Button style={{marginBottom: 15, width: 150}} title="Logout" onPress={() => setLogoutModalVisible(true)}>Logout</Button>
         <Button style={{marginBottom: 15, width: 150}} title="Delete Account" onPress={() => setDeleteModalVisible(true)}>Delete Account</Button>
       </Theme>
