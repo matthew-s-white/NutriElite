@@ -15,6 +15,7 @@ const HomeScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
   const [feedType, setFeedType] = useState("");
   const isFocused = useIsFocused();
+  const [dummy, setDummy] = React.useState(0);
 
   useEffect(() => {
     async function getPosts() {
@@ -36,6 +37,10 @@ const HomeScreen = ({ navigation }) => {
     }
     
     console.log(value, feedType);
+  }
+
+  const increment  = () => {
+    setDummy(dummy + 1);
   }
 
   // {posts.filter( function (post) { 
@@ -85,12 +90,12 @@ const HomeScreen = ({ navigation }) => {
 
           {feedType === "workout" ? posts.map((post, index) => {
             if(post.postType === "workout"){
-              return <Post key={index} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} calories={0} protein={0} carbs={0} fat={0} image={post.image} navigation={navigation}/>
+              return <Post key={index} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} calories={0} protein={0} carbs={0} fat={0}  image={post.image} navigation={navigation}/>
             }
           }) : null}
 
           {feedType === "" ? posts.map((post, index) => {
-            return <Post key={index} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} calories={post.calories} protein={post.protein} carbs={post.carbs} fat={post.fat} image={post.image} navigation={navigation}/>
+            return <Post key={index} id={post.id} author={post.expand.author.username} content={post.content} postType={post.postType} likeCount={post.likeCount} calories={post.calories} protein={post.protein}  carbs={post.carbs} fat={post.fat} image={post.image} navigation={navigation}/>
           }) : null}
 
           <XStack alignSelf='center' marginBottom={25} space>

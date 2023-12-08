@@ -260,14 +260,15 @@ async function getUserId(username) {
         const record = await client.collection('users2').getFullList({
             filter: `username = "${username}"`
         });
-        if (record.length == 0) {
-            return false;
+
+        if (record.length == 0){
+            return null;
         } else {
             return record[0]['id'];
         }
     } catch (e) {
         console.log(e);
-        return false;
+        return null;
     }
 }
 
