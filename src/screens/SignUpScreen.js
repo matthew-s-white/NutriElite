@@ -29,6 +29,10 @@ const SignUpScreen = ({ navigation }) => {
         ToastAndroid.show(`Error: ${msg}`, ToastAndroid.LONG);
     };
 
+    const showMessage = (msg) => {
+        ToastAndroid.show(`${msg}`, ToastAndroid.LONG);
+    };
+
     const submitInfo = () => {
         if(email === '' || !email.match(emailRegex)){
             console.log("email is invalid");
@@ -67,10 +71,9 @@ const SignUpScreen = ({ navigation }) => {
             }
             console.log("before");
             const userCreated = await createNewUser(email, username, password, weight);
-            const idUser = await getUserId(username)
-            const weightrecord = await addWeight(idUser, weight);
+            
 
-            if(!userCreated || !weightrecord){
+            if(!userCreated){
                 console.log("in here");
                 showToast("server error");
                 setSubmitted(false);
@@ -78,7 +81,7 @@ const SignUpScreen = ({ navigation }) => {
             }
             console.log("before navigation");
             const verify = await sendVerification(email);
-            showToast("Verification email sent... Redirecting to login");
+            showMessage("Verification email sent... Redirecting to login");
             navigation.navigate('Login');
         }
         submitToPB();

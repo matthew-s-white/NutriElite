@@ -138,6 +138,19 @@ async function getWeights() {
     }
 }
 
+async function getFriendWeights(emailOrUsername) {
+    try {
+        const weights = await client.collection("weightrecords").getFullList({
+            filter: `user.email = "${emailOrUsername}" || user.username = "${emailOrUsername}"`,
+            sort: "+created"
+        });
+        return weights;
+    } catch (e) {
+        console.log(e);
+        return [];
+    }
+}
+
 async function updateUsername(userId, username) {
     try {
         const record = await client.collection('users2').update(`${userId}`, {
@@ -448,4 +461,4 @@ async function getFriendRequests() {
 
 }
 
-export { createNewUser, updatePasswordWithEmail, getUserEmail, checkUserExists, verifyPassword, sendVerification, isVerified, getWeight, updateWeight, addWeight, getWeights, updateUsername, updatePassword, deleteAccount, getUsers, getUserId, getFriendStatus, sendFriendRequest, acceptFriendRequest, declineFriendRequest, getFriendRequests, deleteFriend };
+export { createNewUser, getFriendWeights, updatePasswordWithEmail, getUserEmail, checkUserExists, verifyPassword, sendVerification, isVerified, getWeight, updateWeight, addWeight, getWeights, updateUsername, updatePassword, deleteAccount, getUsers, getUserId, getFriendStatus, sendFriendRequest, acceptFriendRequest, declineFriendRequest, getFriendRequests, deleteFriend };
