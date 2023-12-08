@@ -1,12 +1,14 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { Text, Theme, Button, Form, YStack, SizableText, XStack, Card, CardProps, H4, H3, H6, H5, H2, H1, H7, Image, Paragraph, Switch, Select, Adapt, Sheet, View } from 'tamagui';
-import { TextInput, SafeAreaView, ScrollView, ToastAndroid, Dimensions } from 'react-native';
+import { StyleSheet, TextInput, SafeAreaView, ScrollView, ToastAndroid, Dimensions, Modal } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list'
 import Icon from 'react-native-vector-icons/Ionicons';
 import { fetchCommentsForPost, checkIfUserLiked, likePost, unlikePost, commentOnPost } from '../backend/PostManagement';
 import { getItem } from '../backend/localStorage';
 import Comment from '../components/Comment';
+import { deleteUserPost } from '../backend/PostManagement';
+import { getUserId } from '../backend/UserManagement';
 
 const PostDetailsScreen = ({ route, navigation }) => {
 
@@ -23,6 +25,9 @@ const PostDetailsScreen = ({ route, navigation }) => {
 
     const [commentSent, setCommentSent] = useState(false);
 
+    const [ownPost, setOwnPost] = React.useState(false); // need to determine whether this is the user's post or not
+    const [deletePostModal, setDeletePostModal] = React.useState(false);
+
 
     React.useEffect(() => {
         async function fetchData() {
@@ -32,6 +37,12 @@ const PostDetailsScreen = ({ route, navigation }) => {
             const idUser = await getItem("userId");
             const like = await checkIfUserLiked(idUser, postInfo.id);
             setLiked(like);
+
+            //find out if post was made by current user
+            const postAuthorId = await getUserId(postInfo.author);
+            if (postAuthorId == idUser) {
+                setOwnPost(true);
+            }
         }
         fetchData();
     }, [commentSent])
@@ -57,8 +68,15 @@ const PostDetailsScreen = ({ route, navigation }) => {
     }
 
     const handleAuthorClicked = () => {
-        navigation.navigate('FriendProfile', {username: postInfo.author });
+        navigation.navigate('FriendProfile', { username: postInfo.author });
     }
+
+    const deletePost = async () => {
+        await deleteUserPost(postInfo.id);
+        setDeletePostModal(!deletePostModal);
+        navigation.goBack(null)
+    }
+
 
     return (
         <YStack alignItems='center' backgroundColor="#CEFF8F" fullscreen={true} space>
@@ -67,7 +85,11 @@ const PostDetailsScreen = ({ route, navigation }) => {
                     <Icon style={{ alignSelf: 'flex-start', padding: 10 }} onPress={() => navigation.goBack(null)} name="arrow-back" size={30} marginTop={10} marginRight={250} color="#2A6329" />
 
                     <Card width="95%" elevate backgroundColor="#A7D36F" marginLeft={10} marginRight={10} paddingLeft={25} paddingRight={25} paddingVertical={10} marginVertical={20}>
-                        <Text onPress={handleAuthorClicked} fontSize={25} padding={2} style={{ fontWeight: "bold" }} color="#123911">@{postInfo.author}</Text>
+                        <XStack>
+                            <Text flex={8} onPress={handleAuthorClicked} fontSize={25} padding={2} style={{ fontWeight: "bold" }} color="#123911">@{postInfo.author}</Text>
+                            {ownPost ? 
+                            <Icon onPress={() => setDeletePostModal(true)} elevate name="trash-outline" color="#FF5757" size={30} /> : null}
+                        </XStack>
                         <View
                             style={{
                                 borderBottomColor: color = "#5B9A4C",
@@ -76,7 +98,7 @@ const PostDetailsScreen = ({ route, navigation }) => {
                         />
                         {postInfo.image !== "" ? <Image marginBottom={10} marginTop={10} width={dimensions.width - 70} height={dimensions.height / 2} borderRadius={10}
                             resizeMode='cover'
-                            source={{uri: `https://nutrielite.pockethost.io/api/files/posts/${postInfo.id}/${postInfo.image}`}}
+                            source={{ uri: `https://nutrielite.pockethost.io/api/files/posts/${postInfo.id}/${postInfo.image}` }}
                         /> : null}
                         <Text fontSize={20} padding={2} color="#123911">{postInfo.content}</Text>
                         {postInfo.postType == "meal" ?
@@ -98,6 +120,24 @@ const PostDetailsScreen = ({ route, navigation }) => {
 
                             <Text color="#123911" fontSize={18}>{likeCou}</Text>
                         </XStack>
+
+                        <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={deletePostModal}
+                            onRequestClose={() => {
+                                setDeletePostModal(!deletePostModal);
+                            }}
+                        >
+                            <View style={styles.centeredView}>
+                                <View style={styles.modalView}>
+                                    <Text style={styles.label}>Are you sure you want to delete your post?</Text>
+
+                                    <Button style={styles.button} onPress={deletePost}>Delete Post</Button>
+                                    <Button style={styles.button} onPress={() => setDeletePostModal(false)}>Cancel</Button>
+                                </View>
+                            </View>
+                        </Modal>
 
                     </Card>
 
@@ -126,3 +166,37 @@ const PostDetailsScreen = ({ route, navigation }) => {
     );
 }
 export default PostDetailsScreen;
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        padding: 16,
+    },
+    label: {
+        fontSize: 16,
+        marginBottom: 10,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: 'gray',
+        padding: 10,
+        marginBottom: 20,
+    },
+    button: {
+        marginBottom: 10,
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalView: {
+        width: '80%',
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'stretch',
+        elevation: 5,
+    },
+});

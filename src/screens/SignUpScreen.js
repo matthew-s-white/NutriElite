@@ -3,6 +3,7 @@ import {Theme, Button, Form, YStack, SizableText} from 'tamagui';
 import {TextInput, ToastAndroid} from 'react-native';
 import { checkUserExists, createNewUser } from '../backend/UserManagement';
 import { useEffect } from 'react';
+import { getUserId, addWeight } from '../backend/UserManagement';
 
 
 const SignUpScreen = ({ navigation }) => {
@@ -66,7 +67,10 @@ const SignUpScreen = ({ navigation }) => {
             }
             console.log("before");
             const userCreated = await createNewUser(email, username, password, weight);
-            if(!userCreated){
+            const idUser = await getUserId(username)
+            const weightrecord = await addWeight(idUser, weight);
+
+            if(!userCreated || !weightrecord){
                 console.log("in here");
                 showToast("server error");
                 setSubmitted(false);

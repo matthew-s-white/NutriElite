@@ -24,9 +24,15 @@ const ProfileScreen = ({ navigation }) => {
   const [username, setUsername] = React.useState("")
   const [posts, setPosts] = useState([]);
   const [feedType, setFeedType] = useState("");
+
   const [weights, setWeights] = useState([]);
   const [calorieIntake, setCalorieIntake] = useState([]);
+  const [proteinIntake, setProteinIntake] = useState([]);
+  const [carbIntake, setCarbIntake] = useState([]);
+  const [fatIntake, setFatIntake] = useState([]);
+
   const [content, setContent] = useState('posts');
+
   const [chartConfig, setChartConfig] = useState({
     backgroundColor: '#2A6329',
     backgroundGradientFrom: '#2A6329',
@@ -79,10 +85,18 @@ const ProfileScreen = ({ navigation }) => {
       setPosts(data);
 
       var i;
-      var dates = []
-      var dailyCalories = []
+      var dates = [];
+      var dailyCalories = [];
+      var dailyProtein = [];
+      var dailyCarbs = [];
+      var dailyFat = [];
+
       var prevDate = null;
-      var calories = 0
+      var calories = 0;
+      var protein = 0;
+      var carbs = 0;
+      var fat = 0;
+
       for (i = data.length - 1; i >= 0; i--) {
         var curr = data[i];
         if (curr['postType'] == 'meal') {
@@ -90,18 +104,31 @@ const ProfileScreen = ({ navigation }) => {
           if (prevDate == null) {
 
             prevDate = formatDate(curr['created']);
-            calories = curr['calories']
+            calories = curr['calories'];
+            protein = curr['protein'];
+            carbs = curr['carbs'];
+            fat = curr['fat'];
           }
           else {
             // start new day
             if (prevDate != formatDate(curr['created'])) {
               dates.push(prevDate);
               dailyCalories.push(calories);
+              dailyProtein.push(protein);
+              dailyCarbs.push(carbs);
+              dailyFat.push(fat);
+
               prevDate = formatDate(curr['created']);
               calories = curr['calories']
+              protein = curr['protein'];
+              carbs = curr['carbs'];
+              fat = curr['fat'];
             }
             else { // add to same day
               calories += curr['calories']
+              protein += curr['protein'];
+              carbs += curr['carbs'];
+              fat += curr['fat'];
             }
           }
         }
@@ -109,23 +136,51 @@ const ProfileScreen = ({ navigation }) => {
       // log last date
       dates.push(prevDate);
       dailyCalories.push(calories);
+      dailyProtein.push(protein);
+      dailyCarbs.push(carbs);
+      dailyFat.push(fat);
 
       //console.log(dates);
       //console.log(dailyCalories);
 
 
-      const chartData = {
+      const calorieData = {
         labels: dates,
         datasets: [{
           data: dailyCalories
         }]
       };
-      setCalorieIntake(chartData);
-      console.log(calorieIntake);
+
+      const proteinData = {
+        labels: dates,
+        datasets: [{
+          data: dailyProtein
+        }]
+      };
+
+      const carbsData = {
+        labels: dates,
+        datasets: [{
+          data: dailyCarbs
+        }]
+      };
+
+      const fatData = {
+        labels: dates,
+        datasets: [{
+          data: dailyFat
+        }]
+      };
+
+      setCalorieIntake(calorieData);
+      setProteinIntake(proteinData);
+      setCarbIntake(carbsData);
+      setFatIntake(fatData);
+      //console.log(calorieIntake);
 
       var j;
       var total = 0;
-      for(j=0; j<dailyCalories.length; j++) {
+      for (j = 0; j < dailyCalories.length; j++) {
         total += dailyCalories[j];
       }
 
@@ -271,6 +326,66 @@ const ProfileScreen = ({ navigation }) => {
                   }}>
                     <LineChart
                       data={calorieIntake}
+                      width={350}
+                      height={300}
+                      verticalLabelRotation={30}
+                      chartConfig={chartConfig}
+                      bezier
+                    />
+                  </View>
+                </YStack>
+              )}
+
+              {proteinIntake.datasets && proteinIntake.datasets.length > 0 && (
+                <YStack alignItems='center'>
+                  <H5 style={{ fontWeight: "bold" }}>PROTEIN TRACKER</H5>
+                  <View marginVertical={5} style={{
+                    borderRadius: 20, // Adjust the value as needed
+                    overflow: 'hidden', // This is important to make borderRadius work
+                    backgroundColor: 'white' // Set the background color as needed
+                  }}>
+                    <LineChart
+                      data={proteinIntake}
+                      width={350}
+                      height={300}
+                      verticalLabelRotation={30}
+                      chartConfig={chartConfig}
+                      bezier
+                    />
+                  </View>
+                </YStack>
+              )}
+
+              {carbIntake.datasets && carbIntake.datasets.length > 0 && (
+                <YStack alignItems='center'>
+                  <H5 style={{ fontWeight: "bold" }}>CARB TRACKER</H5>
+                  <View marginVertical={5} style={{
+                    borderRadius: 20, // Adjust the value as needed
+                    overflow: 'hidden', // This is important to make borderRadius work
+                    backgroundColor: 'white' // Set the background color as needed
+                  }}>
+                    <LineChart
+                      data={carbIntake}
+                      width={350}
+                      height={300}
+                      verticalLabelRotation={30}
+                      chartConfig={chartConfig}
+                      bezier
+                    />
+                  </View>
+                </YStack>
+              )}
+
+              {fatIntake.datasets && fatIntake.datasets.length > 0 && (
+                <YStack alignItems='center'>
+                  <H5 style={{ fontWeight: "bold" }}>FAT TRACKER</H5>
+                  <View marginVertical={5} style={{
+                    borderRadius: 20, // Adjust the value as needed
+                    overflow: 'hidden', // This is important to make borderRadius work
+                    backgroundColor: 'white' // Set the background color as needed
+                  }}>
+                    <LineChart
+                      data={fatIntake}
                       width={350}
                       height={300}
                       verticalLabelRotation={30}
