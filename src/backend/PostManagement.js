@@ -270,6 +270,21 @@ async function getFriendPosts(friendId) {
     }
 }
 
+async function deleteUserPost(postId) {
+    try {
+        const comments = await fetchCommentsForPost(postId);
+        await client.collection('posts').delete(postId);
+        
 
-export { fetchFriendIds, fetchHomePosts, createNewPost, fetchMyPosts, likePost, unlikePost, fetchNutritionInfo, checkIfUserLiked, commentOnPost, fetchCommentsForPost, getFriendPosts };
+        var i;
+        for(i = 0; i < comments.length; i++) {
+            await client.collection('comments').delete(comments[i]['id']);
+        }
+    } catch(e) {
+        console.log(e)
+    }
+}
+
+
+export { deleteUserPost, fetchFriendIds, fetchHomePosts, createNewPost, fetchMyPosts, likePost, unlikePost, fetchNutritionInfo, checkIfUserLiked, commentOnPost, fetchCommentsForPost, getFriendPosts };
 

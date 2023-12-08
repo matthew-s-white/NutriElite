@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Theme, Button, Form, YStack, SizableText, XStack, Text, Card } from 'tamagui';
-import {StyleSheet, View} from 'react-native';
+import { Theme, Adapt, Button, Form, YStack, SizableText, XStack, Label, Input, Text, Card, Popover } from 'tamagui';
+import { StyleSheet, View, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { likePost, unlikePost, checkIfUserLiked } from '../backend/PostManagement';
 import { getItem } from '../backend/localStorage';
@@ -14,19 +14,20 @@ const Post = ({ navigation, id, author, content, likeCount, postType, calories, 
 
     React.useEffect(() => {
         async function fetchData() {
-          //console.log("ive been triggered")
-          const idUser = await getItem("userId");
-          const like = await checkIfUserLiked(idUser, id);
-          setLiked(like);
+            //console.log("ive been triggered")
+            const idUser = await getItem("userId");
+            const like = await checkIfUserLiked(idUser, id);
+            setLiked(like);
         }
+
         fetchData();
-      },[])
+    }, [isFocused, likeCou])
 
     const handleLiked = async () => {
         setLiked(!liked);
         const idUser = await getItem("userId");
 
-        if(!liked){
+        if (!liked) {
             setLikedCou(likeCou + 1);
             await likePost(idUser, id);
         } else {
@@ -34,34 +35,38 @@ const Post = ({ navigation, id, author, content, likeCount, postType, calories, 
             await unlikePost(idUser, id);
         }
 
-        
+
     }
 
+
     const handleClickAuthor = () => {
-        navigation.navigate('FriendProfile', {username: author });
+        navigation.navigate('FriendProfile', { username: author });
     }
 
     const handlePress = () => {
-        navigation.navigate("PostDetails", {id: id, author: author, content: content, likeCount: likeCount, postType: postType, calories: calories, protein: protein, carbs: carbs, fat: fat, image: image});
+        navigation.navigate("PostDetails", { id: id, author: author, content: content, likeCount: likeCount, postType: postType, calories: calories, protein: protein, carbs: carbs, fat: fat, image: image });
     }
     return (
-        <Card onPress={handlePress} width="95%" elevate backgroundColor="#A7D36F" marginLeft={10} marginRight={10} paddingLeft={25} paddingRight={50} paddingVertical={10} marginBottom={20}>
+        <Card onPress={handlePress} width="95%" elevate backgroundColor="#A7D36F" marginLeft={10} marginRight={10} paddingLeft={25} paddingRight={50} paddingVertical={10} marginBottom={40}>
+
             <Text onPress={handleClickAuthor} fontSize={20} padding={2} style={{ fontWeight: "bold" }} color="#123911">@{author}</Text>
+
+
             <View
                 style={{
-                    borderBottomColor: color="#5B9A4C",
+                    borderBottomColor: color = "#5B9A4C",
                     borderBottomWidth: 1,
                 }}
             />
             <Text fontSize={16} padding={2} color="#123911">{content}</Text>
             <XStack>
-                {liked ? 
-                <Icon onPress={handleLiked} elevate name="heart" color="#123911" size={25} />
-                :
-                <Icon onPress={handleLiked} elevate name="heart-outline" color="#123911" size={25} />
+                {liked ?
+                    <Icon onPress={handleLiked} elevate name="heart" color="#123911" size={25} />
+                    :
+                    <Icon onPress={handleLiked} elevate name="heart-outline" color="#123911" size={25} />
                 }
-                
-                <Text color="#123911"  fontSize={18}>{likeCou}</Text>
+
+                <Text color="#123911" fontSize={18}>{likeCou}</Text>
             </XStack>
 
         </Card>
