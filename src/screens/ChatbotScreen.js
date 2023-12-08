@@ -2,14 +2,14 @@ import * as React from 'react';
 import { Theme, Button, Form, YStack, SizableText, XStack, Slider, Text } from 'tamagui';
 import { ScrollView, TextInput, Keyboard } from 'react-native';
 import { StyleSheet, View } from 'react-native';
-import { fetchMymessages } from '../backend/PostManagement';
 import { useEffect, useState } from 'react';
 import Message from '../components/Message';
+import RecipeMessage from '../components/RecipeMessage';
 import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { getItem } from '../backend/localStorage';
-import { fetchMealResponse, welcomeMealMessage, welcomeWorkoutMessage } from '../backend/ChatbotManagement';
+import { fetchMealResponse, fetchWorkoutResponse, welcomeMealMessage, welcomeWorkoutMessage } from '../backend/ChatbotManagement';
 
 
 const ChatbotScreen = ({ navigation }) => {
@@ -65,9 +65,22 @@ const ChatbotScreen = ({ navigation }) => {
 
 
     useEffect(() => {
-        async function getWorkoutResponse(msg) {
-            // const data = await fetchHomePosts();
-            // setPosts(data);
+        async function getWorkoutResponse(msgObj) {
+            const msg = msgObj.content;
+            let ans;
+            if(msg.includes("Generate") || msg.includes("generate")){
+                ans = await fetchWorkoutResponse(msg.substring(msg.indexOf("for ") + 4), "");
+            } else if(msg.includes("beginner")){
+                ans = await fetchWorkoutResponse(msg.substring(msg.indexOf("for ") + 4), "beginner");
+            } else if(msg.includes("intermediate")){
+                ans = await fetchWorkoutResponse(msg.substring(msg.indexOf("for ") + 4), "intermediate");
+            } else if(msg.includes("expert")){
+                ans = await fetchWorkoutResponse(msg.substring(msg.indexOf("for ") + 4), "expert");
+            } else {
+                ans = "Sorry, I didn't understand your message. Try using one of the prompts.";
+            }
+
+            setWorkoutMessages([...workoutMessages, {content: ans, author: "Saturn"}]);
         }
         if(workoutMessages.length != 0 && workoutMessages[workoutMessages.length - 1].author !== "Saturn"){
             getWorkoutResponse(workoutMessages[workoutMessages.length - 1]);
@@ -78,19 +91,27 @@ const ChatbotScreen = ({ navigation }) => {
     }, [workoutMessages]);
 
     useEffect(() => {
-        async function getMealResponse(msg) {
+        async function getMealResponse(msgObj) {
+            const msg = msgObj.content;
             let ans;
-            if(msg.contains("Generate") || msg.contains("generate")){
-                ans = await fetchMealResponse("calculate_meal_plan", msg);
-            } else if(msg.contains("Search") || msg.contains("search")){
-                ans = await fetchMealResponse("search", msg);
-            } else if(msg.contains("Calculate") || msg.contains("calculate")){
+            let recipes = null;
+            if(msg.includes("Search") || msg.includes("search")){
+                const theRes = await fetchMealResponse("search", msg);
+                if(theRes instanceof Array){
+                    ans = theRes[0];
+                    recipes = theRes[1];
+                } else {
+                    ans = theRes;
+                }
+
+            } else if(msg.includes("Calculate") || msg.includes("calculate")){
+                console.log("Calc nutrients");
                 ans = await fetchMealResponse("calculate_nutrients", msg);
             } else {
                 ans = "Sorry, I didn't understand your message. Try using one of the prompts.";
             }
             
-            setMealMessages([...mealMessages, {content: ans, author: "Saturn"}]);
+            setMealMessages([...mealMessages, {content: ans, author: "Saturn", recipes: recipes}]);
         }
         if(mealMessages.length != 0 && mealMessages[mealMessages.length - 1].author !== "Saturn"){
             getMealResponse(mealMessages[mealMessages.length - 1]);
@@ -128,7 +149,11 @@ const ChatbotScreen = ({ navigation }) => {
                 <ScrollView height={isKeyboardVisible ? "65%": "75%"}>
 
                     {chatType === "meal" ? mealMessages.map((message, index) => {
-                        return <Message key={index} author={message.author} content={message.content} />
+                        if(message.recipes !== null){
+                            return <RecipeMessage key={index} author={message.author} content={message.content} recipes={message.recipes} />
+                        } else {
+                            return <Message key={index} author={message.author} content={message.content} />
+                        }
                     }) : null}
 
                     {chatType === "workout" ? workoutMessages.map((message, index) => {

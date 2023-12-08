@@ -60,7 +60,7 @@ function ProfileAndSettings() {
 
 function HomeNonTamagui() {
   return (
-    <Tab.Navigator screenOptions={{headerShown: false, tabBarInactiveBackgroundColor: '#658141', tabBarActiveBackgroundColor: '#7FA351', tabBarActiveTintColor: '#2A6329', tabBarInactiveTintColor: '#123911', tabBarLabelStyle: {fontSize: 13}, tabBarHideOnKeyboard: true}} >
+    <Tab.Navigator initialRouteName="Feed" screenOptions={{headerShown: false, tabBarInactiveBackgroundColor: '#658141', tabBarActiveBackgroundColor: '#7FA351', tabBarActiveTintColor: '#2A6329', tabBarInactiveTintColor: '#123911', tabBarLabelStyle: {fontSize: 13}, tabBarHideOnKeyboard: true}} >
       <Tab.Screen options={{tabBarIcon: (tabInfo) => {return (<Icon name="planet" size={24} color={tabInfo.focused ? "#2A6329" : "#123911"} />);},}} name="Saturn" component={ChatbotScreen} tabBarLabel="Saturn"/>
       <Tab.Screen options={{tabBarIcon: (tabInfo) => {return (<Icon name="home" size={24} color={tabInfo.focused ? "#2A6329" : "#123911"} />);},}} name="Feed" component={Feed} tabBarLabel="Home"/>
       <Tab.Screen options={{tabBarIcon: (tabInfo) => {return (<Icon name="person-circle" size={30} color={tabInfo.focused ? "#2A6329" : "#123911"} />);},}} name="Profile" component={ProfileAndSettings} tabBarLabel="Profile"/>
