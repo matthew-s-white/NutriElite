@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {Theme, Button, Form, YStack, SizableText} from 'tamagui';
 import {TextInput, ToastAndroid} from 'react-native';
-import { checkUserExists, createNewUser } from '../backend/UserManagement';
+import { checkUserExists, createNewUser, sendVerification } from '../backend/UserManagement';
 import { useEffect } from 'react';
 import { getUserId, addWeight } from '../backend/UserManagement';
 
@@ -77,7 +77,9 @@ const SignUpScreen = ({ navigation }) => {
                 return;
             }
             console.log("before navigation");
-            navigation.navigate('Home');
+            const verify = await sendVerification(email);
+            showToast("Verification email sent... Redirecting to login");
+            navigation.navigate('Login');
         }
         submitToPB();
     }, [submitted]);

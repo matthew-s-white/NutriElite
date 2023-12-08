@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Theme, Button, Form, YStack, SizableText, XStack} from 'tamagui';
 import { TextInput, ToastAndroid } from 'react-native';
-import { checkUserExists, verifyPassword } from '../backend/UserManagement';
+import { checkUserExists, verifyPassword, isVerified, getUserId } from '../backend/UserManagement';
 import { useEffect, useState } from 'react';
 import { getItem } from '../backend/localStorage';
 
@@ -29,6 +29,7 @@ const LoginScreen = ({ navigation }) => {
     }, [])
 
     async function submitLogin(){
+       
         const emailOrUsernameExists = await checkUserExists(emailOrUsername, emailOrUsername);
         if(!emailOrUsernameExists){
             showToast("username/email doesn't exist");
@@ -38,6 +39,12 @@ const LoginScreen = ({ navigation }) => {
         const passwordIsCorrect = await verifyPassword(emailOrUsername, password);
         if(!passwordIsCorrect){
             showToast("password is incorrect");
+            return;
+        }
+        const id = await getUserId(emailOrUsername);
+        const verified = await isVerified(id);
+        if(!verified){
+            showToast("account not verified, check your email");
             return;
         }
 

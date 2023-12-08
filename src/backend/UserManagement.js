@@ -1,12 +1,12 @@
 import { client } from './pocketbase';
 import { setItem, getItem } from './localStorage';
 
-async function checkUserExists(email, username){
+async function checkUserExists(email, username) {
     try {
-        const record = await client.collection('users').getFullList({
+        const record = await client.collection('users2').getFullList({
             filter: `email = "${email}" || username = "${username}"`
         });
-        if (record.length == 0){
+        if (record.length == 0) {
             return false;
         } else {
             return true;
@@ -18,19 +18,24 @@ async function checkUserExists(email, username){
 }
 
 
-async function createNewUser(email, username, password, weight){
+async function createNewUser(email, username, password, weight) {
     try {
         const userData = {
             "username": username,
             "email": email,
             "password": password,
+            "passwordConfirm": password,
             "weight": weight
         }
-        const record = await client.collection('users').create(userData);
-        //console.log(record);
+        const record = await client.collection('users2').create(userData);
+
+        console.log(record);
         await setItem('username', username);
-        await setItem('userId',  record.id);
+        await setItem('userId', record.id);
         await setItem('password', password);
+
+        await addWeight(record.id, weight);
+
         return true;
     } catch (e) {
         console.log(e);
@@ -39,40 +44,72 @@ async function createNewUser(email, username, password, weight){
 
 }
 
-async function getWeight(username){
-    try{
-        const record = await client.collection('users').getFullList({
+async function isVerified(id) {
+    try {
+        const record = await client.collection('users2').getOne(id);
+
+        //console.log(record[0].weight)
+        if (record.length == 0) {
+            return false;
+        } else {
+            console.log(record);
+            return record.verified;
+        }
+    } catch (e) {
+        return false;
+    }
+}
+
+async function sendVerification(email) {
+    try {
+        const record = await client.collection('users2').requestVerification(email);
+
+        //console.log(record[0].weight)
+        if (record.length == 0) {
+            return false;
+        } else {
+
+            return true;
+        }
+    } catch (e) {
+        return false;
+    }
+}
+
+async function getWeight(username) {
+    try {
+        const record = await client.collection('users2').getFullList({
             filter: `username = "${username}"`
         });
         //console.log(record[0].weight)
-        if (record.length == 0){
+        if (record.length == 0) {
             return false;
         } else {
 
             return record[0].weight;
         }
-    } catch (e){
+    } catch (e) {
         return false;
     }
 }
 
-async function updateWeight(userId, weight){
-    try{
-        const record = await client.collection('users').update(`${userId}`, {
+async function updateWeight(userId, weight) {
+    try {
+        const record = await client.collection('users2').update(`${userId}`, {
             "weight": `${weight}`
         });
-        if (record.length == 0){
+        if (record.length == 0) {
             return false;
         } else {
             return true;
         }
-    } catch (e){
+    } catch (e) {
         console.log(e);
         return false;
     }
 }
 
-async function addWeight(userId, weight){
+async function addWeight(userId, weight) {
     try {
         const userData = {
             "user": userId,
@@ -87,7 +124,7 @@ async function addWeight(userId, weight){
     }
 }
 
-async function getWeights(){
+async function getWeights() {
     try {
         const emailOrUsername = await getItem("username");
         const weights = await client.collection("weightrecords").getFullList({
@@ -101,70 +138,100 @@ async function getWeights(){
     }
 }
 
-async function updateUsername(userId, username){
-    try{
-        const record = await client.collection('users').update(`${userId}`, {
+async function updateUsername(userId, username) {
+    try {
+        const record = await client.collection('users2').update(`${userId}`, {
             "username": `${username}`
         });
-        if (record.length == 0){
+        if (record.length == 0) {
             return false;
         } else {
             await setItem('username', username);
             return true;
         }
-    } catch (e){
+    } catch (e) {
         console.log(e);
         return false;
     }
 }
 
-async function updatePassword(userId, password){
-    try{
-        const record = await client.collection('users').update(`${userId}`, {
+async function updatePasswordWithEmail() {
+    try {
+        const username = await getItem("username");
+        const email = await getUserEmail(username);
+        const record = await client.collection('users2').requestPasswordReset(email);
+
+        if (record.length == 0) {
+            return false;
+        } else {
+            await setItem('username', username);
+            return true;
+        }
+    } catch (e) {
+        console.log(e);
+        return false;
+    }
+}
+
+async function updatePassword(userId, password) {
+    try {
+        const record = await client.collection('users2').update(`${userId}`, {
             "password": `${password}`
         });
-        if (record.length == 0){
+        if (record.length == 0) {
             return false;
         } else {
             await setItem('password', password);
             return true;
         }
-    } catch (e){
+    } catch (e) {
         console.log(e);
         return false;
     }
 }
 
 
-async function verifyPassword(emailOrUsername, password){
+async function verifyPassword(emailOrUsername, password) {
     try {
-        const record = await client.collection('users').getFullList({
-            filter: `(email = "${emailOrUsername}" || username = "${emailOrUsername}") && password = "${password}"`
-        })
-        if (record.length == 0){
+        // const record = await client.collection('users').getFullList({
+        //     filter: `(email = "${emailOrUsername}" || username = "${emailOrUsername}") && password = "${password}"`
+        // })
+        const record = await client.collection('users2').authWithPassword(
+            emailOrUsername,
+            password,
+        );
+
+        console.log("in verify password")
+        console.log(record);
+        if (record.length == 0) {
             return false;
-        } else {
-            await setItem('username', record[0].username);
-            await setItem('userId',  record[0].id);
-            await setItem('password', record[0].password);
-            return true;
         }
-    } catch (e){
+        await setItem('username', record.record.username);
+        await setItem('userId', record.record.id);
+        await setItem('password', password);
+        console.log(await getItem('username'));
+        console.log(await getItem('userId'));
+        console.log(await getItem('password'));
+
+
+        return true;
+
+    } catch (e) {
         console.log(e);
         return false;
     }
 }
 
 
-async function deleteAccount(userId){
-    try{
-        const record = await client.collection('users').delete(`${userId}`);
-        if (record.length == 0){
+async function deleteAccount(userId) {
+    try {
+        const record = await client.collection('users2').delete(`${userId}`);
+        if (record.length == 0) {
             return false;
         } else {
             return true;
         }
-    } catch (e){
+    } catch (e) {
         console.log(e);
         return false;
     }
@@ -174,10 +241,10 @@ async function deleteAccount(userId){
 async function getUsers() {
     try {
         const username = await getItem("username");
-        const record = await client.collection('users').getFullList({
+        const record = await client.collection('users2').getFullList({
             filter: `username != "${username}"`
         });
-        if (record.length == 0){
+        if (record.length == 0) {
             return false;
         } else {
             return record;
@@ -190,9 +257,10 @@ async function getUsers() {
 
 async function getUserId(username) {
     try {
-        const record = await client.collection('users').getFullList({
+        const record = await client.collection('users2').getFullList({
             filter: `username = "${username}"`
         });
+
         if (record.length == 0){
             return null;
         } else {
@@ -201,6 +269,22 @@ async function getUserId(username) {
     } catch (e) {
         console.log(e);
         return null;
+    }
+}
+
+async function getUserEmail(username) {
+    try {
+        const record = await client.collection('users2').getFullList({
+            filter: `username = "${username}"`
+        });
+        if (record.length == 0) {
+            return false;
+        } else {
+            return record[0]['email'];
+        }
+    } catch (e) {
+        console.log(e);
+        return false;
     }
 }
 
@@ -220,22 +304,22 @@ async function getFriendStatus(senderId, recipientId) {
         //console.log(record2);
 
         // not friends
-        if (record.length == 0 && record2.length == 0){
+        if (record.length == 0 && record2.length == 0) {
             return 1;
         }
 
-        if(record.length == 1 && record2.length == 0) {
+        if (record.length == 1 && record2.length == 0) {
             // user has sent a request that has not been accepted
-            if(record[0]['accepted'] == false) {
+            if (record[0]['accepted'] == false) {
                 return 2;
             }
             // user is friends
             return 4;
         }
 
-        if(record.length == 0 && record2.length == 1) {
+        if (record.length == 0 && record2.length == 1) {
             // user is receiving a request that has not been accepted
-            if(record2[0]['accepted'] == false) {
+            if (record2[0]['accepted'] == false) {
                 return 3;
             }
             // user is friends
@@ -259,7 +343,7 @@ async function sendFriendRequest(senderId, recipientId) {
 
         const record = await client.collection('friends').create(data);
         //console.log(record);
-        
+
     } catch (e) {
         console.log(e);
         return false;
@@ -280,11 +364,11 @@ async function acceptFriendRequest(senderId, recipientId) {
             "recipient": recipientId,
             "accepted": true
         };
-        
+
         const record = await client.collection('friends').update(requestId, data);
         return true;
 
-    } catch(e) {
+    } catch (e) {
         console.log(e);
         return false;
     }
@@ -300,7 +384,7 @@ async function declineFriendRequest(senderId, recipientId) {
         //console.log(requestId);
 
         await client.collection('friends').delete(requestId);
-    } catch(e) {
+    } catch (e) {
         console.log(e);
         return false;
     }
@@ -317,29 +401,29 @@ async function deleteFriend(userId, friendId) {
             filter: `sender = "${friendId}" && recipient = "${userId}"`
         });
 
-        if(record.length == 0) {
+        if (record.length == 0) {
             const request = await client.collection('friends').getFullList({
                 filter: `sender = "${friendId}" && recipient = "${userId}"`
             })
-    
+
             const requestId = request[0]['id']
             //console.log(requestId);
-    
+
             await client.collection('friends').delete(requestId);
         }
         else {
             const request = await client.collection('friends').getFullList({
                 filter: `sender = "${userId}" && recipient = "${friendId}"`
             })
-    
+
             const requestId = request[0]['id']
             //console.log(requestId);
-    
+
             await client.collection('friends').delete(requestId);
         }
 
 
-    } catch(e) {
+    } catch (e) {
         console.log(e);
         return false;
     }
@@ -357,11 +441,11 @@ async function getFriendRequests() {
         console.log(request);
         return request;
 
-    } catch(e) {
+    } catch (e) {
         console.log(e);
         return null;
     }
 
 }
 
-export {createNewUser, checkUserExists, verifyPassword, getWeight, updateWeight, addWeight, getWeights, updateUsername, updatePassword, deleteAccount, getUsers, getUserId, getFriendStatus, sendFriendRequest, acceptFriendRequest, declineFriendRequest, getFriendRequests, deleteFriend};
+export { createNewUser, updatePasswordWithEmail, getUserEmail, checkUserExists, verifyPassword, sendVerification, isVerified, getWeight, updateWeight, addWeight, getWeights, updateUsername, updatePassword, deleteAccount, getUsers, getUserId, getFriendStatus, sendFriendRequest, acceptFriendRequest, declineFriendRequest, getFriendRequests, deleteFriend };
