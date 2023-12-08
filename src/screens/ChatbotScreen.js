@@ -9,7 +9,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { getItem } from '../backend/localStorage';
-import { fetchMealResponse, fetchWorkoutResponse, welcomeMealMessage, welcomeWorkoutMessage } from '../backend/ChatbotManagement';
+import { parseDifficulty, parseMuscle, fetchMealResponse, fetchWorkoutResponse, welcomeMealMessage, welcomeWorkoutMessage } from '../backend/ChatbotManagement';
 
 
 const ChatbotScreen = ({ navigation }) => {
@@ -68,14 +68,11 @@ const ChatbotScreen = ({ navigation }) => {
         async function getWorkoutResponse(msgObj) {
             const msg = msgObj.content;
             let ans;
-            if(msg.includes("Generate") || msg.includes("generate")){
-                ans = await fetchWorkoutResponse(msg.substring(msg.indexOf("for ") + 4), "");
-            } else if(msg.includes("beginner")){
-                ans = await fetchWorkoutResponse(msg.substring(msg.indexOf("for ") + 4), "beginner");
-            } else if(msg.includes("intermediate")){
-                ans = await fetchWorkoutResponse(msg.substring(msg.indexOf("for ") + 4), "intermediate");
-            } else if(msg.includes("expert")){
-                ans = await fetchWorkoutResponse(msg.substring(msg.indexOf("for ") + 4), "expert");
+            const muscle = parseMuscle(msg);
+            if(msg.includes("workout")){
+                ans = await fetchWorkoutResponse(parseMuscle(msg), parseDifficulty(msg), "workout");
+            } else if(msg.includes("exercise")){
+                ans = await fetchWorkoutResponse(parseMuscle(msg), parseDifficulty(msg), "exercise");
             } else {
                 ans = "Sorry, I didn't understand your message. Try using one of the prompts.";
             }

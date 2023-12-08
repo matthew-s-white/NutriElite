@@ -12,8 +12,23 @@ Try messaging me with one of the following prompts:\n
 
 function nutritionAnalysisPrintable(nutritionInfo){
     let nutrients = "\n";
+    const acceptableNutrients = ["Energy", "Total lipid (fat)", "Carbohydrate, by difference", "Protein", "Sugars, total including NLEA"];
     for(item in nutritionInfo.totalNutrients){
-        nutrients += ("\t" + nutritionInfo.totalNutrients[item].label + ": " + Math.round(nutritionInfo.totalNutrients[item].quantity) + nutritionInfo.totalNutrients[item].unit + "\n");
+        if(acceptableNutrients.indexOf(nutritionInfo.totalNutrients[item].label) > -1){
+            let prettyLabel = "";
+            if(acceptableNutrients[0] === nutritionInfo.totalNutrients[item].label){
+                prettyLabel = "Calories"
+            } else if(acceptableNutrients[1] === nutritionInfo.totalNutrients[item].label){
+                prettyLabel = "Fat"
+            } else if(acceptableNutrients[2] === nutritionInfo.totalNutrients[item].label){
+                prettyLabel = "Carbs"
+            } else if(acceptableNutrients[3] === nutritionInfo.totalNutrients[item].label){
+                prettyLabel = "Protein"
+            } else if(acceptableNutrients[4] === nutritionInfo.totalNutrients[item].label){
+                prettyLabel = "Sugar"
+            }
+            nutrients += ("\t" + prettyLabel + ": " + Math.round(nutritionInfo.totalNutrients[item].quantity) + nutritionInfo.totalNutrients[item].unit + "\n");
+        }
     }
     return nutrients;
 }
@@ -101,7 +116,6 @@ async function fetchMealResponse(msgType, mealMessage) {
             "method": "POST",
             "headers": {
                 "Content-Type": "application/json",
-                "Edamam-Account-User": msgType == "calculate_meal_plan" ? "white753": undefined,
             },
             "body": JSON.stringify(reqBody)
         });
@@ -121,7 +135,6 @@ async function fetchMealResponse(msgType, mealMessage) {
                 "method": responseInfo.method,
                 "headers": {
                     "Content-Type": "application/json",
-                    "Edamam-Account-User": msgType == "calculate_meal_plan" ? "white753": undefined,
                 },
                 "body": responseInfo.body ? JSON.stringify(responseInfo.body) : undefined
             });
@@ -145,6 +158,56 @@ async function fetchMealResponse(msgType, mealMessage) {
     } catch (e) {
         console.log(e);
         return ("Fatal error.");
+    }
+}
+
+function parseMuscle(message){
+    if(message.includes("abdominals") || message.includes("abs")){
+        return "abdominals";
+    } else if(message.includes("abductors")){
+        return "abductors";
+    } else if(message.includes("adductors")){
+        return "adductors";
+    } else if(message.includes("biceps")){
+        return "biceps";
+    } else if(message.includes("calves")){
+        return "calves";
+    } else if(message.includes("chest")){
+        return "chest";
+    } else if(message.includes("forearms")){
+        return "forearms";
+    } else if(message.includes("glutes")){
+        return "glutes";
+    } else if(message.includes("hamstrings")){
+        return "hamstrings";
+    } else if(message.includes("lats")){
+        return "lats";
+    } else if(message.includes("lower back")){
+        return "lower back";
+    } else if(message.includes("middle back")){
+        return "middle back";
+    } else if(message.includes("neck")){
+        return "neck";
+    } else if(message.includes("quadriceps") || message.includes("quads")){
+        return "quadriceps";
+    } else if(message.includes("traps")){
+        return "traps";
+    } else if(message.includes("triceps")){
+        return "triceps";
+    } else {
+        return "";
+    }
+}
+
+function parseDifficulty(message){
+    if(message.includes("beginner") || message.includes("easy")){
+        return "beginner";
+    } else if(message.includes("intermediate") || message.includes("medium")){
+        return "intermediate";
+    } else if(message.includes("expert") || message.includes("hard") || message.includes("difficult")){
+        return "expert";
+    } else {
+        return "";
     }
 }
 
@@ -173,25 +236,33 @@ function workoutPrintable(allExers){
 }
 
 function exercisePrintable(allExers){
-    const loc = Math.floor(Math.random() * (allExers.length - 1)) + 1;
+    let loc = Math.floor(Math.random() * (allExers.length - 1)) + 1;
+    if(allExers.length == 1){
+        loc = 0;
+    }
     const myExer = allExers[loc];
-    return ("\n" + myExer.name + "\n\nEquipment: " + myExer.equipment + "\n\nInstructions:\n\t" + myExer.instructions);
+    return ("\n" + myExer.name + "\n\nEquipment: " + myExer.equipment.replaceAll("_", "") + "\n\nInstructions:\n\t" + myExer.instructions);
 }
 
-async function fetchWorkoutResponse(msg, msgType){
+async function fetchWorkoutResponse(muscle, difficulty, type){
     const api_key = "oNkdXbrkSASPsc+LjbMpjA==ww3FadU4J5k2EZ2p";
     let res;
-    let msg2;
-    if(msg == "lower back"){
-        msg2 = "lower_back";
-    } else if(msg == "middle back"){
-        msg2 = "middle_back";
-    } else {
-        msg2 = msg;
+    let muscle2;
+
+    if(muscle == ""){
+        return "Unfortunately, I am not familiar with the muscle group you provided.";
     }
 
-    if(msgType == ""){
-        res = await fetch('https://api.api-ninjas.com/v1/exercises?muscle=' + msg2, {
+    if(muscle == "lower back"){
+        muscle2 = "lower_back";
+    } else if(muscle == "middle back"){
+        muscle2 = "middle_back";
+    } else {
+        muscle2 = muscle;
+    }
+
+    if(difficulty == ""){
+        res = await fetch('https://api.api-ninjas.com/v1/exercises?muscle=' + muscle2, {
             "method": "GET",
             "headers": {
                 "Content-Type": "application/json",
@@ -199,7 +270,7 @@ async function fetchWorkoutResponse(msg, msgType){
             },
         });
     } else {
-        res = await fetch('https://api.api-ninjas.com/v1/exercises?muscle=' + msg2 + "&difficulty=" + msgType, {
+        res = await fetch('https://api.api-ninjas.com/v1/exercises?muscle=' + muscle2 + "&difficulty=" + difficulty, {
             "method": "GET",
             "headers": {
                 "Content-Type": "application/json",
@@ -212,11 +283,11 @@ async function fetchWorkoutResponse(msg, msgType){
     console.log(exerInfo);
     if(exerInfo.length == 0){
         return ("Unfortunately, I am not familiar with the muscle group you provided.");
-    } else if(msgType == ""){
-        return (`Here's a workout I generated for ${msg}:\n` + workoutPrintable(exerInfo));
+    } else if(type == "workout"){
+        return (`Here's a workout I generated for ${muscle}${difficulty !== "" ? ` with ${difficulty} difficulty` : ""}:\n` + workoutPrintable(exerInfo));
     } else {
-        return (`Here's a ${msgType} exercise I found for ${msg}:\n` + exercisePrintable(exerInfo));
+        return (`Here's an exercise I found for ${muscle}${difficulty !== "" ? ` with ${difficulty} difficulty` : ""}:\n` + exercisePrintable(exerInfo));
     }
 }
 
-export {fetchMealResponse, fetchWorkoutResponse, welcomeMealMessage, welcomeWorkoutMessage};
+export {fetchMealResponse, fetchWorkoutResponse, welcomeMealMessage, welcomeWorkoutMessage, parseMuscle, parseDifficulty};
